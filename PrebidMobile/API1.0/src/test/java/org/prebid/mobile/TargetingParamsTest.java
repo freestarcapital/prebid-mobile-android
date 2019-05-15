@@ -59,12 +59,12 @@ public class TargetingParamsTest extends BaseSetup {
 
     @Test
     public void testGender() throws Exception {
-        TargetingParams.setGender(TargetingParams.GENDER.UNKNOWN);
-        assertEquals(TargetingParams.GENDER.UNKNOWN, TargetingParams.getGender());
-        TargetingParams.setGender(TargetingParams.GENDER.FEMALE);
-        assertEquals(TargetingParams.GENDER.FEMALE, TargetingParams.getGender());
-        TargetingParams.setGender(TargetingParams.GENDER.MALE);
-        assertEquals(TargetingParams.GENDER.MALE, TargetingParams.getGender());
+        TargetingParams.setGender(Gender.UNKNOWN);
+        assertEquals(Gender.UNKNOWN, TargetingParams.getGender());
+        TargetingParams.setGender(Gender.FEMALE);
+        assertEquals(Gender.FEMALE, TargetingParams.getGender());
+        TargetingParams.setGender(Gender.MALE);
+        assertEquals(Gender.MALE, TargetingParams.getGender());
     }
 
     @Test

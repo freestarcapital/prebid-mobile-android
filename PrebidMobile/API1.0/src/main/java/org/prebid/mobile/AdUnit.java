@@ -24,23 +24,27 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import org.prebid.mobile.network.AdNetwork;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 public abstract class AdUnit {
     private static final int MIN_AUTO_REFRESH_PERIOD_MILLIS = 30_000;
 
     private String configId;
     private AdType adType;
-    private ArrayList<String> keywords;
+    private final ArrayList<String> keywords = new ArrayList<>();
     private DemandFetcher fetcher;
     private int periodMillis;
+    private final ArrayList<AdNetwork> networks = new ArrayList<>();
 
     AdUnit(@NonNull String configId, @NonNull AdType adType) {
         this.configId = configId;
         this.adType = adType;
         this.periodMillis = 0; // by default no auto refresh
-        this.keywords = new ArrayList<>();
     }
 
     public void setAutoRefreshPeriodMillis(@IntRange(from = MIN_AUTO_REFRESH_PERIOD_MILLIS) int periodMillis) {
@@ -107,7 +111,7 @@ public abstract class AdUnit {
         }
         if (Util.supportedAdObject(adObj)) {
             fetcher = new DemandFetcher(adObj);
-            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords);
+            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);
             fetcher.setListener(listener);
@@ -157,6 +161,24 @@ public abstract class AdUnit {
             }
         }
         keywords.removeAll(toBeRemoved);
+    }
+
+    public void addAdNetwork(AdNetwork network) {
+        if (network != null) {
+            networks.add(network);
+        }
+    }
+
+    public void addAdNetworks(List<AdNetwork> networks) {
+        if (networks != null) {
+            this.networks.addAll(networks);
+        }
+    }
+
+    public void removeAdNetwork(AdNetwork network) {
+        if (network != null) {
+            networks.remove(network);
+        }
     }
 
     public void clearUserKeywords() {

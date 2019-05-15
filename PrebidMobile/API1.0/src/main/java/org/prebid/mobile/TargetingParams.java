@@ -13,8 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-
 package org.prebid.mobile;
 
 import android.content.Context;
@@ -24,7 +22,6 @@ import android.text.TextUtils;
 
 import java.util.Calendar;
 
-
 /**
  * TargetingParams class sets the Targeting parameters like yob, gender, location
  * and other custom parameters for the adUnits to be made available in the auction.
@@ -32,7 +29,7 @@ import java.util.Calendar;
 public class TargetingParams {
     //region Static Variables
     private static int yob = 0;
-    private static GENDER gender = GENDER.UNKNOWN;
+    private static Gender gender = Gender.UNKNOWN;
     private static String domain = "";
     private static String storeUrl = "";
     private static String bundleName = null;
@@ -123,18 +120,12 @@ public class TargetingParams {
         }
     }
 
-    public enum GENDER {
-        FEMALE,
-        MALE,
-        UNKNOWN
-    }
-
     /**
      * Get the current user's gender, if it's available.  The default value is UNKNOWN.
      *
      * @return The user's gender.
      */
-    public static GENDER getGender() {
+    public static Gender getGender() {
         return gender;
     }
 
@@ -145,7 +136,7 @@ public class TargetingParams {
      *
      * @param gender The user's gender.
      */
-    public static void setGender(GENDER gender) {
+    public static void setGender(Gender gender) {
         TargetingParams.gender = gender;
     }
 
