@@ -13,6 +13,7 @@ buildscript {
     repositories {
         jcenter()
         google()
+        mavenLocal()
     }
 
     dependencies {
@@ -28,5 +29,11 @@ allprojects {
         jcenter() // includes the MoPub SDK and AVID library
         maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
         maven { url 'https://maven.google.com' } // necessary for Android API 26
+        mavenLocal()
     }
+
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

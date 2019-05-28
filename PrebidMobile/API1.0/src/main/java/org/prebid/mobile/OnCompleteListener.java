@@ -18,6 +18,8 @@ package org.prebid.mobile;
 
 import android.support.annotation.MainThread;
 
+import org.prebid.mobile.adapter.ResultCode;
+
 public interface OnCompleteListener {
     /**
      * This method will be called when PrebidMobile Mobile finishes attaching keywords to your ad object.

@@ -47,15 +47,26 @@ dependencies {
     testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 }
 
-group = 'org.prebid'
-//name = 'prebid-mobile-sdk'
-version = '1.0.1.0-SNAPSHOT'
+group = 'com.freestar.org.prebid'
+//version = 'FS-1.0.0'
+version = 'FS-1.0.0-SNAPSHOT'
+
+def Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
+def a_username = properties.getProperty('artifactory_username', '')
+def a_password = properties.getProperty('artifactory_password', '')
+
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            //repository(url: "file://[your local maven path here]")
             repository(url: mavenLocal().getUrl())
+            repository(url: 'https://freestar.jfrog.io/freestar/libs-release') {
+                authentication(userName: a_username, password: a_password)
+            }
+            snapshotRepository(url: 'https://freestar.jfrog.io/freestar/libs-snapshot') {
+                authentication(userName: a_username, password: a_password)
+            }
         }
     }
 }

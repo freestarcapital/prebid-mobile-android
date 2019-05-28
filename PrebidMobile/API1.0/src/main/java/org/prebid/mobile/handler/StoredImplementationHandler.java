@@ -1,4 +1,4 @@
-package org.prebid.mobile;
+package org.prebid.mobile.handler;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,17 +13,26 @@ import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.prebid.mobile.AdSize;
+import org.prebid.mobile.AdType;
+import org.prebid.mobile.AdvertisingIDUtil;
+import org.prebid.mobile.Gender;
+import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.adapter.PrebidServerAdapter;
+import org.prebid.mobile.PrebidServerSettings;
+import org.prebid.mobile.RequestParams;
+import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.mobile.TargetingParams;
 import org.prebid.mobile.network.AdNetwork;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
-public class FreestarDirectHandler extends PrebidAdapterHandler {
+public class StoredImplementationHandler extends PrebidAdapterHandler {
     @Override
     public JSONObject getPostData(RequestParams requestParams) throws PrebidServerAdapter.ServerConnector.NoContextException {
         JSONObject postData = new JSONObject();
@@ -76,8 +85,7 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
         try {
             JSONObject imp = new JSONObject();
             JSONObject ext = new JSONObject();
-//            imp.put("id", "PrebidMobile");
-            imp.put("id", requestParams.getConfigId());
+            imp.put("id", "PrebidMobile");
             imp.put("secure", 1);
             if (requestParams.getAdType().equals(AdType.INTERSTITIAL)) {
                 imp.put("instl", 1);
@@ -102,42 +110,12 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                 imp.put("banner", banner);
             }
             imp.put("ext", ext);
-
-//            JSONObject prebid = new JSONObject();
-//            ext.put("prebid", prebid);
-//            JSONObject storedrequest = new JSONObject();
-//            prebid.put("storedrequest", storedrequest);
-//            storedrequest.put("id", requestParams.getConfigId());
+            JSONObject prebid = new JSONObject();
+            ext.put("prebid", prebid);
+            JSONObject storedrequest = new JSONObject();
+            prebid.put("storedrequest", storedrequest);
+            storedrequest.put("id", requestParams.getConfigId());
             imp.put("ext", ext);
-
-            List<AdNetwork> networks = requestParams.getNetworks();
-            for (AdNetwork network : networks) {
-                JSONObject networkJson = new JSONObject();
-                ext.put(network.getName(), networkJson);
-                network.populate(networkJson);
-            }
-
-            /*
-            JSONObject rhythmone = new JSONObject();
-            ext.put("rhythmone", rhythmone);
-            rhythmone.put("placementId", "79261");
-            rhythmone.put("path", "mvo");
-            rhythmone.put("zone", "1r");
-
-            JSONObject rubicon = new JSONObject();
-            ext.put("rubicon", rubicon);
-            rubicon.put("accountId", 16924);
-            rubicon.put("siteId", 222354);
-            rubicon.put("zoneId", 1141820);
-
-            JSONObject appnexus = new JSONObject();
-            ext.put("appnexus", appnexus);
-            appnexus.put("placementId", 14604207);
-
-            JSONObject districtm = new JSONObject();
-            ext.put("districtm", districtm);
-            districtm.put("placementId", 15832560);
-            */
 
             impConfigs.put(imp);
         } catch (JSONException e) {
@@ -182,7 +160,8 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
 
                 device.put(PrebidServerSettings.REQUEST_DEVICE_PIXEL_RATIO, context.getResources().getDisplayMetrics().density);
 
-                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                TelephonyManager telephonyManager = (TelephonyManager) context
+                        .getSystemService(Context.TELEPHONY_SERVICE);
                 // Get mobile country codes
                 if (PrebidServerSettings.getMCC() < 0 || PrebidServerSettings.getMNC() < 0) {
                     String networkOperator = telephonyManager.getNetworkOperator();
@@ -322,14 +301,16 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             String g = "O";
             switch (gender) {
                 case FEMALE:
-                    user.put("gender", "F");
+                    g = "F";
                     break;
                 case MALE:
-                    user.put("gender", "M");
+                    g = "M";
                     break;
                 case UNKNOWN:
+                    g = "O";
                     break;
             }
+            user.put("gender", g);
             StringBuilder builder = new StringBuilder();
             List<String> keywords = requestParams.getKeywords();
             for (String key : keywords) {
@@ -361,8 +342,6 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                 } else {
                     ext.put("gdpr", 0);
                 }
-            } else {
-                ext.put("gdpr", 0);
             }
             regs.put("ext", ext);
         } catch (JSONException e) {
@@ -380,30 +359,11 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             JSONObject bids = new JSONObject();
             cache.put("bids", bids);
             prebid.put("cache", cache);
-
-//            JSONObject storedRequest = new JSONObject();
-//            storedRequest.put("id", PrebidMobile.getPrebidServerAccountId());
-//            prebid.put("storedrequest", storedRequest);
-
-            JSONObject aliasesRequest = new JSONObject();
-            prebid.put("aliases", aliasesRequest);
-            for (AdNetwork network : networks) {
-                network.populateAliasesValues(aliasesRequest);
-            }
-
-//            JSONObject aliasesRequest = new JSONObject();
-//            prebid.put("aliases", aliasesRequest); //TODO:
-//            aliasesRequest.put("appnexusAst", "appnexus"); //TODO:
-//            aliasesRequest.put("districtmDMX", "appnexus"); //TODO:
-//            aliasesRequest.put("districtm", "appnexus"); //TODO:
-//            aliasesRequest.put("brealtime", "appnexus"); //TODO:
-//            aliasesRequest.put("defymedia", "appnexus"); //TODO:
-
+            JSONObject storedRequest = new JSONObject();
+            storedRequest.put("id", PrebidMobile.getPrebidServerAccountId());
+            prebid.put("storedrequest", storedRequest);
             JSONObject targetingEmpty = new JSONObject();
             prebid.put("targeting", targetingEmpty);
-            targetingEmpty.put("pricegranularity", "high"); //TODO:
-            targetingEmpty.put("lengthmax", 20); //TODO:
-
             ext.put("prebid", prebid);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -414,55 +374,41 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
     @Override
     public void populatePost(PrebidServerAdapter.ServerConnector serverConnector, JSONObject result, String auctionId) {
         HashMap<String, String> keywords = new HashMap<>();
-
-        boolean containTopBid = process(result, auctionId, keywords);
-
-        if (!keywords.isEmpty() && containTopBid) {
-            serverConnector.notifyDemandReady(keywords);
-        } else {
-            serverConnector.notifyDemandFailed(ResultCode.NO_BIDS);
-        }
-
-    }
-
-    public static boolean process(JSONObject result, String auctionId, Map<String, String> keywords) {
         boolean containTopBid = false;
         if (result != null) {
-//BKS            LogUtil.d("Getting response for auction " + auctionId + ": " + result.toString());
+            LogUtil.d("Getting response for auction " + auctionId + ": " + result.toString());
             try {
-                if (result.has("seatbid")) {
-                    JSONArray seatbid = result.getJSONArray("seatbid");
-                    if (seatbid != null) {
-                        for (int i = 0; i < seatbid.length(); i++) {
-                            JSONObject seat = seatbid.getJSONObject(i);
-                            JSONArray bids = seat.getJSONArray("bid");
-                            if (bids != null) {
-                                for (int j = 0; j < bids.length(); j++) {
-                                    JSONObject bid = bids.getJSONObject(j);
-                                    JSONObject hb_key_values = null;
-                                    try {
-                                        hb_key_values = bid.getJSONObject("ext").getJSONObject("prebid").getJSONObject("targeting");
-                                    } catch (JSONException e) {
-                                        // this can happen if lower bids exist on the same seat
+                JSONArray seatbid = result.getJSONArray("seatbid");
+                if (seatbid != null) {
+                    for (int i = 0; i < seatbid.length(); i++) {
+                        JSONObject seat = seatbid.getJSONObject(i);
+                        JSONArray bids = seat.getJSONArray("bid");
+                        if (bids != null) {
+                            for (int j = 0; j < bids.length(); j++) {
+                                JSONObject bid = bids.getJSONObject(j);
+                                JSONObject hb_key_values = null;
+                                try {
+                                    hb_key_values = bid.getJSONObject("ext").getJSONObject("prebid").getJSONObject("targeting");
+                                } catch (JSONException e) {
+                                    // this can happen if lower bids exist on the same seat
+                                }
+                                if (hb_key_values != null) {
+                                    Iterator it = hb_key_values.keys();
+                                    boolean containBids = false;
+                                    while (it.hasNext()) {
+                                        String key = (String) it.next();
+                                        if (key.equals("hb_cache_id")) {
+                                            containTopBid = true;
+                                        }
+                                        if (key.startsWith("hb_cache_id")) {
+                                            containBids = true;
+                                        }
                                     }
-                                    if (hb_key_values != null) {
-                                        Iterator it = hb_key_values.keys();
-                                        boolean containBids = false;
+                                    it = hb_key_values.keys();
+                                    if (containBids) {
                                         while (it.hasNext()) {
                                             String key = (String) it.next();
-                                            if (key.equals("hb_cache_id")) {
-                                                containTopBid = true;
-                                            }
-                                            if (key.startsWith("hb_cache_id")) {
-                                                containBids = true;
-                                            }
-                                        }
-                                        it = hb_key_values.keys();
-                                        if (containBids) {
-                                            while (it.hasNext()) {
-                                                String key = (String) it.next();
-                                                keywords.put(key, hb_key_values.getString(key));
-                                            }
+                                            keywords.put(key, hb_key_values.getString(key));
                                         }
                                     }
                                 }
@@ -471,11 +417,16 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                     }
                 }
             } catch (JSONException e) {
-//BKS                LogUtil.e("Error processing JSON response.");
-                e.printStackTrace();
+                LogUtil.e("Error processing JSON response.");
             }
         }
-        return containTopBid;
+
+        if (!keywords.isEmpty() && containTopBid) {
+            serverConnector.notifyDemandReady(keywords);
+        } else {
+            serverConnector.notifyDemandFailed(ResultCode.NO_BIDS);
+        }
+
     }
 
 }

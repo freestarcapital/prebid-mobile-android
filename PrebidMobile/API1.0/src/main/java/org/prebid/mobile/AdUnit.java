@@ -24,10 +24,11 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import org.prebid.mobile.adapter.AdapterHandlerType;
+import org.prebid.mobile.adapter.ResultCode;
 import org.prebid.mobile.network.AdNetwork;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -66,8 +67,11 @@ public abstract class AdUnit {
         }
     }
 
-
     public void fetchDemand(@NonNull Object adObj, @NonNull OnCompleteListener listener) {
+        this.fetchDemand(AdapterHandlerType.PREBID_MODE, adObj, listener);
+    }
+
+    public void fetchDemand(@NonNull AdapterHandlerType type, @NonNull Object adObj, @NonNull OnCompleteListener listener) {
         if (TextUtils.isEmpty(PrebidMobile.getPrebidServerAccountId())) {
             LogUtil.e("Empty account id.");
             listener.onComplete(ResultCode.INVALID_ACCOUNT_ID);
@@ -110,7 +114,7 @@ public abstract class AdUnit {
             return;
         }
         if (Util.supportedAdObject(adObj)) {
-            fetcher = new DemandFetcher(adObj);
+            fetcher = new DemandFetcher(type, adObj);
             RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);

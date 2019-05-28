@@ -38,7 +38,8 @@ import org.prebid.mobile.AdUnit;
 import org.prebid.mobile.BannerAdUnit;
 import org.prebid.mobile.InterstitialAdUnit;
 import org.prebid.mobile.OnCompleteListener;
-import org.prebid.mobile.ResultCode;
+import org.prebid.mobile.adapter.AdapterHandlerType;
+import org.prebid.mobile.adapter.ResultCode;
 
 import static org.prebid.mobile.app.Constants.MOPUB_BANNER_ADUNIT_ID_300x250;
 import static org.prebid.mobile.app.Constants.MOPUB_BANNER_ADUNIT_ID_320x50;
@@ -91,7 +92,7 @@ public class DemoActivity extends AppCompatActivity {
         //region PrebidMobile Mobile API 1.0 usage
         int millis = getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0);
         adUnit.setAutoRefreshPeriodMillis(millis);
-        adUnit.fetchDemand(request, new OnCompleteListener() {
+        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, request, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -132,7 +133,7 @@ public class DemoActivity extends AppCompatActivity {
         adUnit.setAutoRefreshPeriodMillis(millis);
         PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
         final PublisherAdRequest request = builder.build();
-        adUnit.fetchDemand(request, new OnCompleteListener() {
+        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, request, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -162,7 +163,7 @@ public class DemoActivity extends AppCompatActivity {
         adFrame.addView(adView);
 
         adUnit.setAutoRefreshPeriodMillis(getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0));
-        adUnit.fetchDemand(adView, new OnCompleteListener() {
+        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, adView, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -212,7 +213,7 @@ public class DemoActivity extends AppCompatActivity {
         adUnit = new InterstitialAdUnit(Constants.PBS_CONFIG_ID_INTERSTITIAL);
         int millis = getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0);
         adUnit.setAutoRefreshPeriodMillis(millis);
-        adUnit.fetchDemand(interstitial, new OnCompleteListener() {
+        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, interstitial, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;

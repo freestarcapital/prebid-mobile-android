@@ -24,6 +24,10 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.prebid.mobile.adapter.AdapterHandlerType;
+import org.prebid.mobile.adapter.DemandAdapter;
+import org.prebid.mobile.adapter.PrebidServerAdapter;
+import org.prebid.mobile.adapter.ResultCode;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.prebid.mobile.testutils.MockPrebidServerResponses;
 import org.robolectric.Robolectric;
@@ -86,7 +90,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(320, 50));
         RequestParams requestParams = new RequestParams("6ace8c7d-88c0-4623-8117-75bc3f0a2e45", AdType.BANNER, sizes, new ArrayList<String>());
@@ -104,7 +108,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(300, 250));
         RequestParams requestParams = new RequestParams("1001-1", AdType.BANNER, sizes, new ArrayList<String>());
@@ -122,7 +126,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(320, 50));
         RequestParams requestParams = new RequestParams("6ace8c7d-88c0-4623-8117-ffffffffffff", AdType.BANNER, sizes, new ArrayList<String>());
@@ -140,7 +144,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(300, 250));
         RequestParams requestParams = new RequestParams("1001-1_INVALID_CONFIG_ID", AdType.BANNER, sizes, new ArrayList<String>());
@@ -158,7 +162,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(320, 50));
         RequestParams requestParams = new RequestParams("6ace8c7d-88c0-4623-8117-75bc3f0a2e45", AdType.BANNER, sizes, new ArrayList<String>());
@@ -176,7 +180,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(320, 50));
         RequestParams requestParams = new RequestParams("6ace8c7d-88c0-4623-8117-75bc3f0a2e", AdType.BANNER, sizes, new ArrayList<String>());
@@ -196,7 +200,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(300, 250));
         RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>());
@@ -221,7 +225,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -252,7 +256,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(320, 50));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -280,7 +284,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(320, 50));
         RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -303,7 +307,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -342,7 +346,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(300, 250));
         RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -383,7 +387,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -411,7 +415,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(300, 250));
         RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -433,7 +437,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -469,7 +473,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -505,7 +509,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -530,7 +534,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -575,7 +579,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             DemandAdapter.DemandAdapterListener mockListener1 = mock(DemandAdapter.DemandAdapterListener.class);
             DemandAdapter.DemandAdapterListener mockListener2 = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(320, 50));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -608,7 +612,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             PrebidMobile.setShareGeoLocation(true);
             PrebidMobile.setApplicationContext(activity.getApplicationContext());
             final DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            final PrebidServerAdapter adapter = new PrebidServerAdapter();
+            final PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(320, 50));
             final RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -704,7 +708,7 @@ public class PrebidServerAdapterTest extends BaseSetup {
             TargetingParams.setSubjectToGDPR(true);
             TargetingParams.setGDPRConsentString("testGDPR");
             DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-            PrebidServerAdapter adapter = new PrebidServerAdapter();
+            PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(320, 50));
             RequestParams requestParams = new RequestParams("67890", AdType.BANNER, sizes, new ArrayList<String>());
@@ -725,13 +729,12 @@ public class PrebidServerAdapterTest extends BaseSetup {
             assertTrue(postData.has("regs"));
             assertTrue(postData.has("ext"));
             JSONObject imp = postData.getJSONArray("imp").getJSONObject(0);
-//BKS TOD:            assertEquals("PrebidMobile", imp.getString("id"));
-            assertEquals("67890", imp.getString("id"));
+            assertEquals("PrebidMobile", imp.getString("id"));
             assertEquals(1, imp.getInt("secure"));
             assertEquals(1, imp.getJSONObject("banner").getJSONArray("format").length());
             assertEquals(320, imp.getJSONObject("banner").getJSONArray("format").getJSONObject(0).getInt("w"));
             assertEquals(50, imp.getJSONObject("banner").getJSONArray("format").getJSONObject(0).getInt("h"));
-//BKS TODO:            assertEquals(67890, imp.getJSONObject("ext").getJSONObject("prebid").getJSONObject("storedrequest").getInt("id"));
+            assertEquals(67890, imp.getJSONObject("ext").getJSONObject("prebid").getJSONObject("storedrequest").getInt("id"));
             JSONObject device = postData.getJSONObject("device");
             assertEquals(PrebidServerSettings.deviceMake, device.getString("make"));
             assertEquals(PrebidServerSettings.deviceModel, device.getString("model"));

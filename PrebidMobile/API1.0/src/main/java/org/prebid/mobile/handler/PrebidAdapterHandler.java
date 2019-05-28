@@ -1,7 +1,9 @@
-package org.prebid.mobile;
+package org.prebid.mobile.handler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.prebid.mobile.adapter.PrebidServerAdapter;
+import org.prebid.mobile.RequestParams;
 import org.prebid.mobile.network.AdNetwork;
 
 import java.util.List;

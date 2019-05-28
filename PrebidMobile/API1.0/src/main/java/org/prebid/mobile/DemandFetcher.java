@@ -22,6 +22,11 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import org.prebid.mobile.adapter.AdapterHandlerType;
+import org.prebid.mobile.adapter.DemandAdapter;
+import org.prebid.mobile.adapter.PrebidServerAdapter;
+import org.prebid.mobile.adapter.ResultCode;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -44,13 +49,17 @@ class DemandFetcher {
     private RequestParams requestParams;
 
     DemandFetcher(@NonNull Object adObj) {
+        this(AdapterHandlerType.PREBID_MODE, adObj);
+    }
+
+    DemandFetcher(@NonNull AdapterHandlerType type, @NonNull Object adObj) {
         this.state = STATE.STOPPED;
         this.periodMillis = 0;
         this.adObject = adObj;
         HandlerThread fetcherThread = new HandlerThread("FetcherThread");
         fetcherThread.start();
         this.fetcherHandler = new Handler(fetcherThread.getLooper());
-        this.requestRunnable = new RequestRunnable();
+        this.requestRunnable = new RequestRunnable(type);
     }
 
     void setListener(OnCompleteListener listener) {
@@ -141,12 +150,12 @@ class DemandFetcher {
         private String auctionId;
         private Handler demandHandler;
 
-        RequestRunnable() {
+        RequestRunnable(AdapterHandlerType type) {
             // Using a separate thread for making demand request so that waiting on currently thread doesn't block actual fetching
             HandlerThread demandThread = new HandlerThread("DemandThread");
             demandThread.start();
             this.demandHandler = new Handler(demandThread.getLooper());
-            this.demandAdapter = new PrebidServerAdapter();
+            this.demandAdapter = new PrebidServerAdapter(type);
             auctionId = UUID.randomUUID().toString();
         }
 

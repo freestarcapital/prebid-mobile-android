@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile;
+package org.prebid.mobile.adapter;
 
 public enum ResultCode {
     /**

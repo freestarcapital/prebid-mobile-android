@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile;
+package org.prebid.mobile.adapter;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -30,6 +30,14 @@ import android.webkit.CookieSyncManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.prebid.mobile.AdvertisingIDUtil;
+import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.PrebidMobile;
+import org.prebid.mobile.PrebidServerSettings;
+import org.prebid.mobile.RequestParams;
+import org.prebid.mobile.handler.FreestarDirectHandler;
+import org.prebid.mobile.handler.PrebidAdapterHandler;
+import org.prebid.mobile.handler.StoredImplementationHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,23 +52,22 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//BKS TODO: class PrebidServerAdapter implements DemandAdapter {
 public class PrebidServerAdapter implements DemandAdapter {
     private final ArrayList<ServerConnector> serverConnectors;
     private final PrebidAdapterHandler adapterHandler;
 
-    PrebidServerAdapter() {
+    public PrebidServerAdapter(AdapterHandlerType type) {
         serverConnectors = new ArrayList<>();
-//        adapterHandler = new StoredImplementationHandler();
-        adapterHandler = new FreestarDirectHandler();
+        if (type == AdapterHandlerType.FREESTAR_MODE) {
+            adapterHandler = new FreestarDirectHandler();
+        } else {
+            adapterHandler = new StoredImplementationHandler();
+        }
     }
 
     @Override
@@ -82,7 +89,7 @@ public class PrebidServerAdapter implements DemandAdapter {
         serverConnectors.removeAll(toRemove);
     }
 
-    static class ServerConnector extends AsyncTask<Object, Object, ServerConnector.AsyncTaskResult<JSONObject>> {
+    public static class ServerConnector extends AsyncTask<Object, Object, ServerConnector.AsyncTaskResult<JSONObject>> {
 
         private static final int TIMEOUT_COUNT_DOWN_INTERVAL = 500;
 
@@ -268,7 +275,7 @@ System.out.println("BKSBKS-HOST: "+url);
             prebidServerAdapter.serverConnectors.remove(this);
         }
 
-        String getAuctionId() {
+        public String getAuctionId() {
             return auctionId;
         }
 
@@ -278,7 +285,7 @@ System.out.println("BKSBKS-HOST: "+url);
         }
 
         @MainThread
-        void notifyDemandReady(HashMap<String, String> keywords) {
+        public void notifyDemandReady(HashMap<String, String> keywords) {
             if (this.listener == null) {
                 return;
             }
@@ -287,7 +294,7 @@ System.out.println("BKSBKS-HOST: "+url);
         }
 
         @MainThread
-        void notifyDemandFailed(ResultCode code) {
+        public void notifyDemandFailed(ResultCode code) {
             if (this.listener == null) {
                 return;
             }
@@ -379,7 +386,7 @@ System.out.println("BKSBKS-HOST: "+url);
             return postData;
         }
 
-        static class NoContextException extends Exception {
+        public static class NoContextException extends Exception {
         }
 
         private static class AsyncTaskResult<T> {
@@ -418,7 +425,7 @@ System.out.println("BKSBKS-HOST: "+url);
             }
         }
 
-        class TimeoutCountDownTimer extends CountDownTimer {
+        public class TimeoutCountDownTimer extends CountDownTimer {
 
             /**
              * @param millisInFuture    The number of millis in the future from the call

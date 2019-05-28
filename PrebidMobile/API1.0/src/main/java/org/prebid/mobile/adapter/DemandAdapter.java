@@ -14,9 +14,11 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile;
+package org.prebid.mobile.adapter;
 
 import android.support.annotation.MainThread;
+
+import org.prebid.mobile.RequestParams;
 
 import java.util.HashMap;
 
@@ -25,7 +27,7 @@ import java.util.HashMap;
  * PrebidMobile Mobile will instantiate the class that implements this interface, and then call
  * the methods when needed.
  */
-interface DemandAdapter {
+public interface DemandAdapter {
 
     /**
      * PrebidMobile Mobile will create a DemandAdapterListener and pass it to this method

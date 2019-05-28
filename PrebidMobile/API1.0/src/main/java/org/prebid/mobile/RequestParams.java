@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-class RequestParams {
+public class RequestParams {
     private String configId = "";
     private AdType adType;
     private final HashSet<AdSize> sizes;
@@ -41,22 +41,22 @@ class RequestParams {
         this.networks = networks;
     }
 
-    String getConfigId() {
+    public String getConfigId() {
         return this.configId;
     }
 
-    AdType getAdType() {
+    public AdType getAdType() {
         return this.adType;
     }
 
-    HashSet<AdSize> getAdSizes() {
+    public HashSet<AdSize> getAdSizes() {
         return this.sizes;
     }
 
-    List<String> getKeywords() {
+    public List<String> getKeywords() {
         return keywords;
     }
 
-    List<AdNetwork> getNetworks() { return networks; }
+    public List<AdNetwork> getNetworks() { return networks; }
 
 }
