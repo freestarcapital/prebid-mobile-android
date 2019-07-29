@@ -691,6 +691,10 @@ public class PrebidServerAdapterTest extends BaseSetup {
     }
 
     @Test
+    public void holder() {}
+
+    //BKS TODO:
+    //@Test
     public void testTargetingParamsInPostData() throws Exception {
         if (successfulMockServerStarted) {
             server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.noBid()));

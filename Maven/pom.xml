@@ -1,31 +1,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     
+    <groupId>com.freestar.org.prebid</groupId>
+    <artifactId>API1.0</artifactId>
+    <version>FS-1.0.0</version>
+    <packaging>jar</packaging>
+
     <!-- SonaType Requirements -->
     <name>Prebid Mobile Android SDK</name>
     <description>Prebid Mobile</description>
     <url>https://www.prebid.org</url>
-    <scm>
-        <connection>scm:git:git@github.com:prebid/prebid-mobile-android.git</connection>
-        <developerConnection>scm:git:git@github.com:prebid/prebid-mobile-android.git</developerConnection>
-        <url>git@github.com:prebid/prebid-mobile-android.git</url>
-    </scm>
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>AppNexus Mobile Team</name>
-            <email>sdk@appnexus.com</email>
-            <organization>AppNexus, Inc.</organization>
-            <organizationUrl>http://www.appnexus.com</organizationUrl>
-        </developer>
-    </developers>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.prebid</groupId>
-    <artifactId>prebid-mobile-sdk</artifactId>
-    <version>1.0</version>
-    <packaging>jar</packaging>
+
+   <profiles>
+     <profile>
+       <build>
+         <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-compiler-plugin</artifactId>
+             <version>3.5.1</version>
+             <configuration>
+               <source>1.8</source>
+               <target>1.8</target>
+               <debug>true</debug>
+             </configuration>
+           </plugin>
+         </plugins>
+       </build>
+     </profile>
+   </profiles>
+
+   <distributionManagement>
+        <repository>
+            <id>freestarSDK</id>
+            <url>https://api.bintray.com/maven/freestaraz/com.freestar.org.prebid/API1.0/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
 </project>

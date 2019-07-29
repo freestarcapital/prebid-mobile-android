@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
+
+ext {
+    bintrayRepo = 'com-freestar-org-prebid'
+    bintrayName = 'API1.0'
+
+    publishedGroupId = 'com.freestar.org.prebid'
+    libraryName = 'API1.0'
+    artifact = 'API1.0'
+
+    libraryDescription = 'A wrapper for Freestar ads on Android'
+
+    siteUrl = 'https://github.com/nuuneoi/FBLikeAndroid'
+    gitUrl = 'https://github.com/nuuneoi/FBLikeAndroid.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'freestaraz'
+    developerName = 'Brian Sorensen'
+    developerEmail = 'brian.sorensen@freestar.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -33,7 +57,8 @@ dependencies {
     testImplementation 'com.android.support:support-annotations:28.0.0'
 
     testImplementation 'org.apache.commons:commons-lang3:3.9'
-    testImplementation 'com.google.android.gms:play-services-ads:17.2.1'
+//    testImplementation 'com.google.android.gms:play-services-ads:17.2.1'
+    implementation 'com.google.android.gms:play-services-ads-lite:17.2.1'
     testImplementation('com.mopub:mopub-sdk:5.4.1@aar') {
         transitive = true
     }
@@ -47,26 +72,17 @@ dependencies {
     testAnnotationProcessor 'com.google.auto.service:auto-service:1.0-rc4'
 }
 
-group = 'com.freestar.org.prebid'
-//version = 'FS-1.0.0'
-version = 'FS-1.0.1-SNAPSHOT'
+//apply from: 'publish.gradle'
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file("local.properties").newDataInputStream())
-def a_username = properties.getProperty('artifactory_username', '')
-def a_password = properties.getProperty('artifactory_password', '')
+//group = 'com.freestar.org.prebid'
+//version = 'FS-1.0.0-SNAPSHOT'
 
+//Properties properties = new Properties()
+//properties.load(project.rootProject.file("local.properties").newDataInputStream())
+//def a_username = properties.getProperty('artifactory_username', '')
+//def a_password = properties.getProperty('artifactory_password', '')
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: mavenLocal().getUrl())
-            repository(url: 'https://freestar.jfrog.io/freestar/libs-release') {
-                authentication(userName: a_username, password: a_password)
-            }
-            snapshotRepository(url: 'https://freestar.jfrog.io/freestar/libs-snapshot') {
-                authentication(userName: a_username, password: a_password)
-            }
-        }
-    }
-}
+// Place it at the end of the file
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+

@@ -15,7 +15,7 @@ public abstract class PrebidAdapterHandler {
 
     protected abstract JSONObject getDeviceObject();
 
-    protected abstract JSONObject getAppObject();
+    protected abstract JSONObject getAppObject(RequestParams requestParams);
 
     protected abstract JSONObject getUserObject(RequestParams requestParams);
 

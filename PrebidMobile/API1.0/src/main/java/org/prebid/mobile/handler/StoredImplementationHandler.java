@@ -53,7 +53,7 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
                 postData.put(PrebidServerSettings.REQUEST_DEVICE, device);
             }
             // add app
-            JSONObject app = getAppObject();
+            JSONObject app = getAppObject(requestParams);
             if (device != null && device.length() > 0) {
                 postData.put(PrebidServerSettings.REQUEST_APP, app);
             }
@@ -256,7 +256,7 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
     }
 
     @Override
-    protected JSONObject getAppObject() {
+    protected JSONObject getAppObject(RequestParams requestParams) {
         JSONObject app = new JSONObject();
         try {
             if (!TextUtils.isEmpty(TargetingParams.getBundleName())) {

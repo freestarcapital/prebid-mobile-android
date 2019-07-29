@@ -58,7 +58,7 @@ public class DemandFetcherTest extends BaseSetup {
         if (successfulMockServerStarted) {
             PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
             PublisherAdRequest request = builder.build();
-            DemandFetcher demandFetcher = new DemandFetcher(request);
+            DemandFetcher demandFetcher = new DemandFetcher(null, request);
             demandFetcher.setPeriodMillis(0);
             HashSet<AdSize> sizes = new HashSet<>();
             sizes.add(new AdSize(300, 250));
@@ -88,7 +88,7 @@ public class DemandFetcherTest extends BaseSetup {
             server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.noBid()));
             PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
             PublisherAdRequest request = builder.build();
-            DemandFetcher demandFetcher = new DemandFetcher(request);
+            DemandFetcher demandFetcher = new DemandFetcher(null, request);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(0);
             HashSet<AdSize> sizes = new HashSet<>();
@@ -126,7 +126,7 @@ public class DemandFetcherTest extends BaseSetup {
 
             PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
             PublisherAdRequest request = builder.build();
-            DemandFetcher demandFetcher = new DemandFetcher(request);
+            DemandFetcher demandFetcher = new DemandFetcher(null, request);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(30);
             HashSet<AdSize> sizes = new HashSet<>();
@@ -165,7 +165,7 @@ public class DemandFetcherTest extends BaseSetup {
             server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.oneBidFromAppNexus()));
             PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
             PublisherAdRequest request = builder.build();
-            DemandFetcher demandFetcher = new DemandFetcher(request);
+            DemandFetcher demandFetcher = new DemandFetcher(null, request);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(0);
             HashSet<AdSize> sizes = new HashSet<>();
@@ -225,7 +225,7 @@ public class DemandFetcherTest extends BaseSetup {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.oneBidFromRubicon()));
         PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
         PublisherAdRequest request = builder.build();
-        DemandFetcher demandFetcher = new DemandFetcher(request);
+        DemandFetcher demandFetcher = new DemandFetcher(null, request);
         PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
         demandFetcher.setPeriodMillis(0);
         HashSet<AdSize> sizes = new HashSet<>();
@@ -309,7 +309,7 @@ public class DemandFetcherTest extends BaseSetup {
             server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.oneBidFromAppNexus()));
             MoPubView adView = new MoPubView(activity);
             adView.setAdUnitId("123456789");
-            DemandFetcher demandFetcher = new DemandFetcher(adView);
+            DemandFetcher demandFetcher = new DemandFetcher(null, adView);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(0);
             HashSet<AdSize> sizes = new HashSet<>();
@@ -349,7 +349,7 @@ public class DemandFetcherTest extends BaseSetup {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(MockPrebidServerResponses.oneBidFromRubicon()));
         MoPubView adView = new MoPubView(activity);
         adView.setAdUnitId("123456789");
-        DemandFetcher demandFetcher = new DemandFetcher(adView);
+        DemandFetcher demandFetcher = new DemandFetcher(null, adView);
         PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
         demandFetcher.setPeriodMillis(0);
         HashSet<AdSize> sizes = new HashSet<>();
@@ -384,7 +384,7 @@ public class DemandFetcherTest extends BaseSetup {
             server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
             MoPubView adView = new MoPubView(activity);
             adView.setAdUnitId("123456789");
-            DemandFetcher demandFetcher = new DemandFetcher(adView);
+            DemandFetcher demandFetcher = new DemandFetcher(null, adView);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(2000);
             HashSet<AdSize> sizes = new HashSet<>();
@@ -430,7 +430,7 @@ public class DemandFetcherTest extends BaseSetup {
             server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
             PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
             PublisherAdRequest request = builder.build();
-            DemandFetcher demandFetcher = new DemandFetcher(request);
+            DemandFetcher demandFetcher = new DemandFetcher(null, request);
             PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
             demandFetcher.setPeriodMillis(2000);
             HashSet<AdSize> sizes = new HashSet<>();

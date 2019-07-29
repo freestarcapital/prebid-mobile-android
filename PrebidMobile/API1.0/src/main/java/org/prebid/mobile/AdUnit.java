@@ -41,6 +41,7 @@ public abstract class AdUnit {
     private DemandFetcher fetcher;
     private int periodMillis;
     private final ArrayList<AdNetwork> networks = new ArrayList<>();
+    private String auctionId;
 
     AdUnit(@NonNull String configId, @NonNull AdType adType) {
         this.configId = configId;
@@ -114,7 +115,7 @@ public abstract class AdUnit {
             return;
         }
         if (Util.supportedAdObject(adObj)) {
-            fetcher = new DemandFetcher(type, adObj);
+            fetcher = new DemandFetcher(this, type, adObj);
             RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);
@@ -189,6 +190,19 @@ public abstract class AdUnit {
         keywords.clear();
     }
 
+    public void setAuctionId(String auctionId) {
+        this.auctionId = auctionId;
+    }
+
+    public String getAuctionId() {
+        return auctionId;
+    }
+
+    public String getAuctionIdWithClear() {
+        String result = auctionId;
+        auctionId = null;
+        return result;
+    }
 
 }
 

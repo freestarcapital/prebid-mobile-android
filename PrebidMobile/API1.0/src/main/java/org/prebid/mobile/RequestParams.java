@@ -28,6 +28,7 @@ public class RequestParams {
     private final HashSet<AdSize> sizes;
     private final List<String> keywords;
     private final List<AdNetwork> networks;
+    private List<String> appCats;
 
     RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, List<String> keywords) {
         this(configId, adType, sizes, keywords, new ArrayList<AdNetwork>());
@@ -59,4 +60,11 @@ public class RequestParams {
 
     public List<AdNetwork> getNetworks() { return networks; }
 
+    public List<String> getAppCats() {
+        return appCats;
+    }
+
+    public void setAppCats(List<String> appCats) {
+        this.appCats = appCats;
+    }
 }

@@ -54,8 +54,8 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                 postData.put(PrebidServerSettings.REQUEST_DEVICE, device);
             }
             // add app
-            JSONObject app = getAppObject();
-            if (device != null && device.length() > 0) {
+            JSONObject app = getAppObject(requestParams);
+            if (app != null && app.length() > 0) {
                 postData.put(PrebidServerSettings.REQUEST_APP, app);
             }
             // add user
@@ -287,7 +287,7 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
     }
 
     @Override
-    protected JSONObject getAppObject() {
+    protected JSONObject getAppObject(RequestParams requestParams) {
         JSONObject app = new JSONObject();
         try {
             if (!TextUtils.isEmpty(TargetingParams.getBundleName())) {
@@ -311,6 +311,16 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             JSONObject prebid = new JSONObject();
             prebid.put("source", "prebid-mobile");
             prebid.put("version", PrebidServerSettings.sdk_version);
+
+            List<String> appCats = requestParams.getAppCats();
+            if (appCats != null && appCats.size() > 0) {
+                JSONArray cats = new JSONArray();
+                app.put("cat", cats);
+                for (String cat : appCats) {
+                    cats.put(cat);
+                }
+            }
+
             JSONObject ext = new JSONObject();
             ext.put("prebid", prebid);
             app.put("ext", ext);

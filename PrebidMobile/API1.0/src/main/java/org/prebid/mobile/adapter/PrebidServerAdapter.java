@@ -68,6 +68,7 @@ public class PrebidServerAdapter implements DemandAdapter {
         } else {
             adapterHandler = new StoredImplementationHandler();
         }
+        LogUtil.d("HOST: "+PrebidMobile.getPrebidServerHost().getHostUrl()+"  TYPE: "+type);
     }
 
     @Override
@@ -125,7 +126,6 @@ public class PrebidServerAdapter implements DemandAdapter {
             try {
                 long demandFetchStartTime = System.currentTimeMillis();
                 URL url = new URL(getHost());
-System.out.println("BKSBKS-HOST: "+url);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setDoOutput(true);
                 conn.setDoInput(true);
