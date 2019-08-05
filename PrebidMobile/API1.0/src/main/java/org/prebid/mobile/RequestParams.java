@@ -16,55 +16,50 @@
 
 package org.prebid.mobile;
 
-import org.prebid.mobile.network.AdNetwork;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-public class RequestParams {
+class RequestParams {
+
     private String configId = "";
-    private AdType adType;
-    private final HashSet<AdSize> sizes;
-    private final List<String> keywords;
-    private final List<AdNetwork> networks;
-    private List<String> appCats;
+    private AdType adType = AdType.BANNER;
+    private HashSet<AdSize> sizes = new HashSet<>();
+    private ArrayList<String> keywords;
+    @Nullable
+    private AdSize minSizePerc; //non null only for InterstitialAdUnit(String, int, int)
 
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, List<String> keywords) {
-        this(configId, adType, sizes, keywords, new ArrayList<AdNetwork>());
-    }
-
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, List<String> keywords, List<AdNetwork> networks) {
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords) {
         this.configId = configId;
         this.adType = adType;
         this.sizes = sizes; // for Interstitial this will be null, will use screen width & height in the request
         this.keywords = keywords;
-        this.networks = networks;
     }
 
-    public String getConfigId() {
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, @Nullable AdSize minSizePerc) {
+        this(configId, adType, sizes, keywords);
+        this.minSizePerc = minSizePerc;
+    }
+
+    String getConfigId() {
         return this.configId;
     }
 
-    public AdType getAdType() {
+    AdType getAdType() {
         return this.adType;
     }
 
-    public HashSet<AdSize> getAdSizes() {
+    HashSet<AdSize> getAdSizes() {
         return this.sizes;
     }
 
-    public List<String> getKeywords() {
+    ArrayList<String> getKeywords() {
         return keywords;
     }
 
-    public List<AdNetwork> getNetworks() { return networks; }
-
-    public List<String> getAppCats() {
-        return appCats;
-    }
-
-    public void setAppCats(List<String> appCats) {
-        this.appCats = appCats;
+    @Nullable
+    AdSize getMinSizePerc() {
+        return minSizePerc;
     }
 }

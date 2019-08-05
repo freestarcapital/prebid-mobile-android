@@ -20,9 +20,11 @@ package org.prebid.mobile.app;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.ads.AdListener;
@@ -38,8 +40,9 @@ import org.prebid.mobile.AdUnit;
 import org.prebid.mobile.BannerAdUnit;
 import org.prebid.mobile.InterstitialAdUnit;
 import org.prebid.mobile.OnCompleteListener;
-import org.prebid.mobile.adapter.AdapterHandlerType;
-import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.mobile.ResultCode;
+import org.prebid.mobile.addendum.AdViewUtils;
+import org.prebid.mobile.addendum.PbFindSizeError;
 
 import static org.prebid.mobile.app.Constants.MOPUB_BANNER_ADUNIT_ID_300x250;
 import static org.prebid.mobile.app.Constants.MOPUB_BANNER_ADUNIT_ID_320x50;
@@ -74,15 +77,37 @@ public class DemoActivity extends AppCompatActivity {
         int width = Integer.valueOf(wAndH[0]);
         int height = Integer.valueOf(wAndH[1]);
         if (width == 300 && height == 250) {
-            dfpAdView.setAdUnitId(Constants.DFP_BANNER_ADUNIT_ID_300x250);
+            dfpAdView.setAdUnitId(Constants.DFP_BANNER_ADUNIT_ID_ALL_SIZES);
             adUnit = new BannerAdUnit(Constants.PBS_CONFIG_ID_300x250, width, height);
         } else if (width == 320 && height == 50) {
-            dfpAdView.setAdUnitId(Constants.DFP_BANNER_ADUNIT_ID_300x250);
+            dfpAdView.setAdUnitId(Constants.DFP_BANNER_ADUNIT_ID_ALL_SIZES);
             adUnit = new BannerAdUnit(Constants.PBS_CONFIG_ID_320x50, width, height);
         } else {
             dfpAdView.setAdUnitId(Constants.DFP_BANNER_ADUNIT_ID_ALL_SIZES);
             adUnit = new BannerAdUnit(Constants.PBS_CONFIG_ID_320x50, width, height);
         }
+
+        dfpAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+
+                AdViewUtils.findPrebidCreativeSize(dfpAdView, new AdViewUtils.PbFindSizeListener() {
+                    @Override
+                    public void success(int width, int height) {
+                        dfpAdView.setAdSizes(new AdSize(width, height));
+
+                    }
+
+                    @Override
+                    public void failure(@NonNull PbFindSizeError error) {
+                        Log.d("MyTag", "error: " + error);
+                    }
+                });
+
+            }
+        });
+
         dfpAdView.setAdSizes(new AdSize(width, height));
         adFrame.addView(dfpAdView);
         final PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
@@ -92,7 +117,7 @@ public class DemoActivity extends AppCompatActivity {
         //region PrebidMobile Mobile API 1.0 usage
         int millis = getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0);
         adUnit.setAutoRefreshPeriodMillis(millis);
-        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, request, new OnCompleteListener() {
+        adUnit.fetchDemand(request, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -133,7 +158,7 @@ public class DemoActivity extends AppCompatActivity {
         adUnit.setAutoRefreshPeriodMillis(millis);
         PublisherAdRequest.Builder builder = new PublisherAdRequest.Builder();
         final PublisherAdRequest request = builder.build();
-        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, request, new OnCompleteListener() {
+        adUnit.fetchDemand(request, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -163,7 +188,7 @@ public class DemoActivity extends AppCompatActivity {
         adFrame.addView(adView);
 
         adUnit.setAutoRefreshPeriodMillis(getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0));
-        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, adView, new OnCompleteListener() {
+        adUnit.fetchDemand(adView, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;
@@ -213,7 +238,7 @@ public class DemoActivity extends AppCompatActivity {
         adUnit = new InterstitialAdUnit(Constants.PBS_CONFIG_ID_INTERSTITIAL);
         int millis = getIntent().getIntExtra(Constants.AUTO_REFRESH_NAME, 0);
         adUnit.setAutoRefreshPeriodMillis(millis);
-        adUnit.fetchDemand(AdapterHandlerType.PREBID_MODE, interstitial, new OnCompleteListener() {
+        adUnit.fetchDemand(interstitial, new OnCompleteListener() {
             @Override
             public void onComplete(ResultCode resultCode) {
                 DemoActivity.this.resultCode = resultCode;

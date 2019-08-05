@@ -59,12 +59,12 @@ public class TargetingParamsTest extends BaseSetup {
 
     @Test
     public void testGender() throws Exception {
-        TargetingParams.setGender(Gender.UNKNOWN);
-        assertEquals(Gender.UNKNOWN, TargetingParams.getGender());
-        TargetingParams.setGender(Gender.FEMALE);
-        assertEquals(Gender.FEMALE, TargetingParams.getGender());
-        TargetingParams.setGender(Gender.MALE);
-        assertEquals(Gender.MALE, TargetingParams.getGender());
+        TargetingParams.setGender(TargetingParams.GENDER.UNKNOWN);
+        assertEquals(TargetingParams.GENDER.UNKNOWN, TargetingParams.getGender());
+        TargetingParams.setGender(TargetingParams.GENDER.FEMALE);
+        assertEquals(TargetingParams.GENDER.FEMALE, TargetingParams.getGender());
+        TargetingParams.setGender(TargetingParams.GENDER.MALE);
+        assertEquals(TargetingParams.GENDER.MALE, TargetingParams.getGender());
     }
 
     @Test
@@ -86,6 +86,15 @@ public class TargetingParamsTest extends BaseSetup {
     public void testStoreUrl() throws Exception {
         TargetingParams.setStoreUrl("store://testapp");
         assertEquals("store://testapp", TargetingParams.getStoreUrl());
+    }
+
+    @Test
+    public void testCOPPAFlag() throws Exception {
+        PrebidMobile.setApplicationContext(activity.getApplicationContext());
+        TargetingParams.setSubjectToCOPPA(true);
+        assertTrue(TargetingParams.isSubjectToCOPPA());
+        TargetingParams.setSubjectToCOPPA(false);
+        assertTrue(!TargetingParams.isSubjectToCOPPA());
     }
 
     @Test

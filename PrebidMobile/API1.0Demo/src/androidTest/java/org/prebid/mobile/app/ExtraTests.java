@@ -41,7 +41,7 @@ import org.prebid.mobile.InterstitialAdUnit;
 import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.OnCompleteListener;
 import org.prebid.mobile.PrebidMobile;
-import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.TargetingParams;
 
 import java.io.BufferedReader;

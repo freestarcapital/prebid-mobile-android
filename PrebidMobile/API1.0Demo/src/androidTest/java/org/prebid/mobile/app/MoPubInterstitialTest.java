@@ -19,7 +19,7 @@ package org.prebid.mobile.app;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.mobile.ResultCode;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

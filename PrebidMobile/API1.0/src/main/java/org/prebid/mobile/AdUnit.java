@@ -24,29 +24,23 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import org.prebid.mobile.adapter.AdapterHandlerType;
-import org.prebid.mobile.adapter.ResultCode;
-import org.prebid.mobile.network.AdNetwork;
-
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public abstract class AdUnit {
     private static final int MIN_AUTO_REFRESH_PERIOD_MILLIS = 30_000;
 
     private String configId;
     private AdType adType;
-    private final ArrayList<String> keywords = new ArrayList<>();
+    private ArrayList<String> keywords;
     private DemandFetcher fetcher;
     private int periodMillis;
-    private final ArrayList<AdNetwork> networks = new ArrayList<>();
-    private String auctionId;
 
     AdUnit(@NonNull String configId, @NonNull AdType adType) {
         this.configId = configId;
         this.adType = adType;
         this.periodMillis = 0; // by default no auto refresh
+        this.keywords = new ArrayList<>();
     }
 
     public void setAutoRefreshPeriodMillis(@IntRange(from = MIN_AUTO_REFRESH_PERIOD_MILLIS) int periodMillis) {
@@ -68,11 +62,8 @@ public abstract class AdUnit {
         }
     }
 
-    public void fetchDemand(@NonNull Object adObj, @NonNull OnCompleteListener listener) {
-        this.fetchDemand(AdapterHandlerType.PREBID_MODE, adObj, listener);
-    }
 
-    public void fetchDemand(@NonNull AdapterHandlerType type, @NonNull Object adObj, @NonNull OnCompleteListener listener) {
+    public void fetchDemand(@NonNull Object adObj, @NonNull OnCompleteListener listener) {
         if (TextUtils.isEmpty(PrebidMobile.getPrebidServerAccountId())) {
             LogUtil.e("Empty account id.");
             listener.onComplete(ResultCode.INVALID_ACCOUNT_ID);
@@ -100,6 +91,13 @@ public abstract class AdUnit {
                 }
             }
         }
+        AdSize minSizePerc = null;
+        if (this instanceof InterstitialAdUnit) {
+            InterstitialAdUnit interstitialAdUnit = (InterstitialAdUnit) this;
+
+            minSizePerc = interstitialAdUnit.getMinSizePerc();
+        }
+
         Context context = PrebidMobile.getApplicationContext();
         if (context != null) {
             ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -115,8 +113,9 @@ public abstract class AdUnit {
             return;
         }
         if (Util.supportedAdObject(adObj)) {
-            fetcher = new DemandFetcher(this, type, adObj);
-            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks);
+            fetcher = new DemandFetcher(adObj);
+
+            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, minSizePerc);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);
             fetcher.setListener(listener);
@@ -168,41 +167,10 @@ public abstract class AdUnit {
         keywords.removeAll(toBeRemoved);
     }
 
-    public void addAdNetwork(AdNetwork network) {
-        if (network != null) {
-            networks.add(network);
-        }
-    }
-
-    public void addAdNetworks(List<AdNetwork> networks) {
-        if (networks != null) {
-            this.networks.addAll(networks);
-        }
-    }
-
-    public void removeAdNetwork(AdNetwork network) {
-        if (network != null) {
-            networks.remove(network);
-        }
-    }
-
     public void clearUserKeywords() {
         keywords.clear();
     }
 
-    public void setAuctionId(String auctionId) {
-        this.auctionId = auctionId;
-    }
-
-    public String getAuctionId() {
-        return auctionId;
-    }
-
-    public String getAuctionIdWithClear() {
-        String result = auctionId;
-        auctionId = null;
-        return result;
-    }
 
 }
 

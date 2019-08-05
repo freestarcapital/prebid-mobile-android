@@ -26,15 +26,15 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class AdvertisingIDUtil {
+class AdvertisingIDUtil {
     private static String aaid = null;
     private static boolean limitAdTracking = false;
 
-    public static synchronized String getAAID() {
+    static synchronized String getAAID() {
         return aaid;
     }
 
-    public static synchronized boolean isLimitAdTracking() {
+    static synchronized boolean isLimitAdTracking() {
         return limitAdTracking;
     }
 
@@ -62,7 +62,7 @@ public class AdvertisingIDUtil {
      * @param context context to retrieve the AAID on.
      */
     @SuppressLint("ObsoleteSdkInt")
-    public static void retrieveAndSetAAID(Context context) {
+    static void retrieveAndSetAAID(Context context) {
         if (STATE.FETCHED.equals(state) || STATE.FETCHING.equals(state) || context == null) {
             return;
         }

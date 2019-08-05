@@ -29,52 +29,52 @@ import android.webkit.WebView;
 
 import java.util.Locale;
 
-public class PrebidServerSettings {
-    public static final String AN_UUID = "uuid2";
-    public static final String COOKIE_HEADER = "Cookie";
-    public static final String VERSION_ZERO_HEADER = "Set-cookie";
-    public static final String VERSION_ONE_HEADER = "Set-cookie2";
-    public static final String COOKIE_DOMAIN = "http://prebid.adnxs.com";
+class PrebidServerSettings {
+    static final String AN_UUID = "uuid2";
+    static final String COOKIE_HEADER = "Cookie";
+    static final String VERSION_ZERO_HEADER = "Set-cookie";
+    static final String VERSION_ONE_HEADER = "Set-cookie2";
+    static final String COOKIE_DOMAIN = "http://prebid.adnxs.com";
     // Prebid Server Constants
     // request keys
-    public static final String REQUEST_USER = "user";
-    public static final String REQUEST_LANGUAGE = "language";
-    public static final String REQUEST_DEVICE = "device";
-    public static final String REQUEST_APP = "app";
-    public static final String REQUEST_DEVICE_MAKE = "make";
-    public static final String REQUEST_DEVICE_MODEL = "model";
-    public static final String REQUEST_DEVICE_WIDTH = "w";
-    public static final String REQUEST_DEVICE_HEIGHT = "h";
-    public static final String REQUEST_DEVICE_PIXEL_RATIO = "pxratio";
-    public static final String REQUEST_MCC_MNC = "mccmnc";
-    public static final String REQUEST_LMT = "lmt";
-    public static final String REQUEST_CONNECTION_TYPE = "connectiontype";
-    public static final String REQUEST_CARRIER = "carrier";
-    public static final String REQUEST_USERAGENT = "ua";
-    public static final String REQUEST_GEO = "geo";
-    public static final String REQUEST_GEO_ACCURACY = "accuracy";
-    public static final String REQUEST_GEO_LON = "lon";
-    public static final String REQEUST_GEO_LAT = "lat";
-    public static final String REQUEST_GEO_AGE = "lastfix";
-    public static final String REQUEST_IFA = "ifa";
-    public static final String REQUEST_OS = "os";
-    public static final String REQUEST_OS_VERSION = "osv";
+    static final String REQUEST_USER = "user";
+    static final String REQUEST_LANGUAGE = "language";
+    static final String REQUEST_DEVICE = "device";
+    static final String REQUEST_APP = "app";
+    static final String REQUEST_DEVICE_MAKE = "make";
+    static final String REQUEST_DEVICE_MODEL = "model";
+    static final String REQUEST_DEVICE_WIDTH = "w";
+    static final String REQUEST_DEVICE_HEIGHT = "h";
+    static final String REQUEST_DEVICE_PIXEL_RATIO = "pxratio";
+    static final String REQUEST_MCC_MNC = "mccmnc";
+    static final String REQUEST_LMT = "lmt";
+    static final String REQUEST_CONNECTION_TYPE = "connectiontype";
+    static final String REQUEST_CARRIER = "carrier";
+    static final String REQUEST_USERAGENT = "ua";
+    static final String REQUEST_GEO = "geo";
+    static final String REQUEST_GEO_ACCURACY = "accuracy";
+    static final String REQUEST_GEO_LON = "lon";
+    static final String REQEUST_GEO_LAT = "lat";
+    static final String REQUEST_GEO_AGE = "lastfix";
+    static final String REQUEST_IFA = "ifa";
+    static final String REQUEST_OS = "os";
+    static final String REQUEST_OS_VERSION = "osv";
     static final int REQUEST_KEY_LENGTH_MAX = 20;
 
     // PrebidServerSettings
-    public static final String deviceMake = Build.MANUFACTURER;
-    public static final String deviceModel = Build.MODEL;
-    public static final String os = "android";
-    public static String userAgent = null;
-    public static String sdk_version = "1.0";
-    public static String pkgVersion = "";
-    public static String appName = "";
+    static final String deviceMake = Build.MANUFACTURER;
+    static final String deviceModel = Build.MODEL;
+    static final String os = "android";
+    static String userAgent = null;
+    static String sdk_version = "1.1.2";
+    static String pkgVersion = "";
+    static String appName = "";
     private static int mnc = -1;
     private static int mcc = -1;
     private static String carrierName = null;
 
 
-    public static synchronized void update(final Context context) {
+    static synchronized void update(final Context context) {
         if (userAgent == null) {
             // todo update this to latest method in API 0.5.1
             Handler handler = new Handler(Looper.getMainLooper());
@@ -112,27 +112,27 @@ public class PrebidServerSettings {
     }
 
 
-    public static synchronized int getMCC() {
+    static synchronized int getMCC() {
         return mcc;
     }
 
-    public static synchronized void setMCC(int mcc) {
+    static synchronized void setMCC(int mcc) {
         PrebidServerSettings.mcc = mcc;
     }
 
-    public static synchronized int getMNC() {
+    static synchronized int getMNC() {
         return mnc;
     }
 
-    public static synchronized void setMNC(int mnc) {
+    static synchronized void setMNC(int mnc) {
         PrebidServerSettings.mnc = mnc;
     }
 
-    public static synchronized String getCarrierName() {
+    static synchronized String getCarrierName() {
         return carrierName;
     }
 
-    public static synchronized void setCarrierName(String carrierName) {
+    static synchronized void setCarrierName(String carrierName) {
         PrebidServerSettings.carrierName = carrierName;
     }
 
