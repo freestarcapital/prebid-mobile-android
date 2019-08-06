@@ -37,6 +37,10 @@ import android.webkit.CookieSyncManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+import org.prebid.fs.mobile.handler.FreestarDirectHandler;
+import org.prebid.fs.mobile.handler.PrebidAdapterHandler;
+import org.prebid.fs.mobile.handler.StoredImplementationHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,24 +55,28 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class PrebidServerAdapter implements DemandAdapter {
-    private ArrayList<ServerConnector> serverConnectors;
+public class PrebidServerAdapter implements DemandAdapter {
+    private final ArrayList<ServerConnector> serverConnectors;
+    private final PrebidAdapterHandler adapterHandler;
 
-    PrebidServerAdapter() {
+    PrebidServerAdapter(AdapterHandlerType type) {
         serverConnectors = new ArrayList<>();
+        if (type == AdapterHandlerType.FREESTAR_MODE) {
+            adapterHandler = new FreestarDirectHandler();
+        } else {
+            adapterHandler = new StoredImplementationHandler();
+        }
+        LogUtil.d("HOST: "+ PrebidMobile.getPrebidServerHost().getHostUrl()+"  TYPE: "+type);
     }
 
     @Override
     public void requestDemand(RequestParams params, DemandAdapterListener listener, String auctionId) {
-        ServerConnector connector = new ServerConnector(this, listener, params, auctionId);
+        ServerConnector connector = new ServerConnector(this, adapterHandler, listener, params, auctionId);
         serverConnectors.add(connector);
         connector.execute();
     }
@@ -85,11 +93,12 @@ class PrebidServerAdapter implements DemandAdapter {
         serverConnectors.removeAll(toRemove);
     }
 
-    static class ServerConnector extends AsyncTask<Object, Object, ServerConnector.AsyncTaskResult<JSONObject>> {
+   public static class ServerConnector extends AsyncTask<Object, Object, ServerConnector.AsyncTaskResult<JSONObject>> {
 
         private static final int TIMEOUT_COUNT_DOWN_INTERVAL = 500;
 
         private final WeakReference<PrebidServerAdapter> prebidServerAdapter;
+        private final PrebidAdapterHandler adapterHandler;
         private final TimeoutCountDownTimer timeoutCountDownTimer;
 
         private final RequestParams requestParams;
@@ -98,8 +107,9 @@ class PrebidServerAdapter implements DemandAdapter {
         private DemandAdapterListener listener;
         private boolean timeoutFired;
 
-        ServerConnector(PrebidServerAdapter prebidServerAdapter, DemandAdapterListener listener, RequestParams requestParams, String auctionId) {
+        ServerConnector(PrebidServerAdapter prebidServerAdapter, PrebidAdapterHandler adapterHandler,  DemandAdapterListener listener, RequestParams requestParams, String auctionId) {
             this.prebidServerAdapter = new WeakReference<>(prebidServerAdapter);
+            this.adapterHandler = adapterHandler;
             this.listener = listener;
             this.requestParams = requestParams;
             this.auctionId = auctionId;
@@ -243,61 +253,7 @@ class PrebidServerAdapter implements DemandAdapter {
                 return;
             }
 
-            JSONObject jsonObject = asyncTaskResult.getResult();
-
-            HashMap<String, String> keywords = new HashMap<>();
-            boolean containTopBid = false;
-            if (jsonObject != null) {
-                LogUtil.d("Getting response for auction " + getAuctionId() + ": " + jsonObject.toString());
-                try {
-                    JSONArray seatbid = jsonObject.getJSONArray("seatbid");
-                    if (seatbid != null) {
-                        for (int i = 0; i < seatbid.length(); i++) {
-                            JSONObject seat = seatbid.getJSONObject(i);
-                            JSONArray bids = seat.getJSONArray("bid");
-                            if (bids != null) {
-                                for (int j = 0; j < bids.length(); j++) {
-                                    JSONObject bid = bids.getJSONObject(j);
-                                    JSONObject hb_key_values = null;
-                                    try {
-                                        hb_key_values = bid.getJSONObject("ext").getJSONObject("prebid").getJSONObject("targeting");
-                                    } catch (JSONException e) {
-                                        // this can happen if lower bids exist on the same seat
-                                    }
-                                    if (hb_key_values != null) {
-                                        Iterator it = hb_key_values.keys();
-                                        boolean containBids = false;
-                                        while (it.hasNext()) {
-                                            String key = (String) it.next();
-                                            if (key.equals("hb_cache_id")) {
-                                                containTopBid = true;
-                                            }
-                                            if (key.startsWith("hb_cache_id")) {
-                                                containBids = true;
-                                            }
-                                        }
-                                        it = hb_key_values.keys();
-                                        if (containBids) {
-                                            while (it.hasNext()) {
-                                                String key = (String) it.next();
-                                                keywords.put(key, hb_key_values.getString(key));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (JSONException e) {
-                    LogUtil.e("Error processing JSON response.");
-                }
-            }
-
-            if (!keywords.isEmpty() && containTopBid) {
-                notifyDemandReady(keywords);
-            } else {
-                notifyDemandFailed(ResultCode.NO_BIDS);
-            }
+            adapterHandler.populatePost(this, asyncTaskResult.getResult(), getAuctionId());
 
             removeThisTask();
         }
@@ -325,7 +281,7 @@ class PrebidServerAdapter implements DemandAdapter {
             prebidServerAdapter.serverConnectors.remove(this);
         }
 
-        String getAuctionId() {
+        public String getAuctionId() {
             return auctionId;
         }
 
@@ -335,7 +291,7 @@ class PrebidServerAdapter implements DemandAdapter {
         }
 
         @MainThread
-        void notifyDemandReady(HashMap<String, String> keywords) {
+        public void notifyDemandReady(HashMap<String, String> keywords) {
             if (this.listener == null) {
                 return;
             }
@@ -344,7 +300,7 @@ class PrebidServerAdapter implements DemandAdapter {
         }
 
         @MainThread
-        void notifyDemandFailed(ResultCode code) {
+        public void notifyDemandFailed(ResultCode code) {
             if (this.listener == null) {
                 return;
             }
@@ -432,367 +388,11 @@ class PrebidServerAdapter implements DemandAdapter {
                 AdvertisingIDUtil.retrieveAndSetAAID(context);
                 PrebidServerSettings.update(context);
             }
-            JSONObject postData = new JSONObject();
-            try {
-                String id = UUID.randomUUID().toString();
-                postData.put("id", id);
-                JSONObject source = new JSONObject();
-                source.put("tid", id);
-                postData.put("source", source);
-                // add ad units
-                JSONArray imp = getImp();
-                if (imp != null && imp.length() > 0) {
-                    postData.put("imp", imp);
-                }
-                // add device
-                JSONObject device = getDeviceObject();
-                if (device != null && device.length() > 0) {
-                    postData.put(PrebidServerSettings.REQUEST_DEVICE, device);
-                }
-                // add app
-                JSONObject app = getAppObject();
-                if (device != null && device.length() > 0) {
-                    postData.put(PrebidServerSettings.REQUEST_APP, app);
-                }
-                // add user
-                JSONObject user = getUserObject();
-                if (user != null && user.length() > 0) {
-                    postData.put(PrebidServerSettings.REQUEST_USER, user);
-                }
-                // add regs
-                JSONObject regs = getRegsObject();
-                if (regs != null && regs.length() > 0) {
-                    postData.put("regs", regs);
-                }
-                // add targeting keywords request
-                JSONObject ext = getRequestExtData();
-                if (ext != null && ext.length() > 0) {
-                    postData.put("ext", ext);
-                }
-            } catch (JSONException e) {
-            }
+            JSONObject postData = adapterHandler.getPostData(requestParams);
             return postData;
         }
 
-        private JSONObject getRequestExtData() {
-            JSONObject ext = new JSONObject();
-            JSONObject prebid = new JSONObject();
-            try {
-                JSONObject cache = new JSONObject();
-                JSONObject bids = new JSONObject();
-                cache.put("bids", bids);
-                prebid.put("cache", cache);
-                JSONObject storedRequest = new JSONObject();
-                storedRequest.put("id", PrebidMobile.getPrebidServerAccountId());
-                prebid.put("storedrequest", storedRequest);
-                JSONObject targetingEmpty = new JSONObject();
-                prebid.put("targeting", targetingEmpty);
-                ext.put("prebid", prebid);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return ext;
-        }
-
-        private JSONArray getImp() throws NoContextException {
-            JSONArray impConfigs = new JSONArray();
-            // takes information from the ad units
-            // look up the configuration of the ad unit
-            try {
-                JSONObject imp = new JSONObject();
-                JSONObject ext = new JSONObject();
-                imp.put("id", "PrebidMobile");
-                imp.put("secure", 1);
-                if (requestParams.getAdType().equals(AdType.INTERSTITIAL)) {
-                    imp.put("instl", 1);
-                    JSONObject banner = new JSONObject();
-                    JSONArray format = new JSONArray();
-                    Context context = PrebidMobile.getApplicationContext();
-                    if (context != null) {
-                        format.put(new JSONObject().put("w", context.getResources().getConfiguration().screenWidthDp).put("h", context.getResources().getConfiguration().screenHeightDp));
-                    } else {
-                        // Unlikely this is being called, if so, please check if you've set up the SDK properly
-                        throw new NoContextException();
-                    }
-                    banner.put("format", format);
-                    imp.put("banner", banner);
-                } else {
-                    JSONObject banner = new JSONObject();
-                    JSONArray format = new JSONArray();
-                    for (AdSize size : requestParams.getAdSizes()) {
-                        format.put(new JSONObject().put("w", size.getWidth()).put("h", size.getHeight()));
-                    }
-                    banner.put("format", format);
-                    imp.put("banner", banner);
-                }
-                imp.put("ext", ext);
-                JSONObject prebid = new JSONObject();
-                ext.put("prebid", prebid);
-                JSONObject storedrequest = new JSONObject();
-                prebid.put("storedrequest", storedrequest);
-                storedrequest.put("id", requestParams.getConfigId());
-                imp.put("ext", ext);
-
-                impConfigs.put(imp);
-            } catch (JSONException e) {
-            }
-
-            return impConfigs;
-        }
-
-        private JSONObject getDeviceObject() {
-            JSONObject device = new JSONObject();
-            try {
-                // Device make
-                if (!TextUtils.isEmpty(PrebidServerSettings.deviceMake))
-                    device.put(PrebidServerSettings.REQUEST_DEVICE_MAKE, PrebidServerSettings.deviceMake);
-                // Device model
-                if (!TextUtils.isEmpty(PrebidServerSettings.deviceModel))
-                    device.put(PrebidServerSettings.REQUEST_DEVICE_MODEL, PrebidServerSettings.deviceModel);
-                // Default User Agent
-                if (!TextUtils.isEmpty(PrebidServerSettings.userAgent)) {
-                    device.put(PrebidServerSettings.REQUEST_USERAGENT, PrebidServerSettings.userAgent);
-                }
-                // limited ad tracking
-                device.put(PrebidServerSettings.REQUEST_LMT, AdvertisingIDUtil.isLimitAdTracking() ? 1 : 0);
-                if (!AdvertisingIDUtil.isLimitAdTracking() && !TextUtils.isEmpty(AdvertisingIDUtil.getAAID())) {
-                    // put ifa
-                    device.put(PrebidServerSettings.REQUEST_IFA, AdvertisingIDUtil.getAAID());
-                }
-
-                // os
-                device.put(PrebidServerSettings.REQUEST_OS, PrebidServerSettings.os);
-                device.put(PrebidServerSettings.REQUEST_OS_VERSION, String.valueOf(Build.VERSION.SDK_INT));
-                // language
-                if (!TextUtils.isEmpty(Locale.getDefault().getLanguage())) {
-                    device.put(PrebidServerSettings.REQUEST_LANGUAGE, Locale.getDefault().getLanguage());
-                }
-
-                if (requestParams.getAdType().equals(AdType.INTERSTITIAL)) {
-
-                    Integer minSizePercWidth = null;
-                    Integer minSizePercHeight = null;
-
-                    AdSize minSizePerc = requestParams.getMinSizePerc();
-                    if (minSizePerc != null) {
-
-                        minSizePercWidth = minSizePerc.getWidth();
-                        minSizePercHeight = minSizePerc.getHeight();
-                    }
-
-                    JSONObject deviceExt = new JSONObject();
-                    JSONObject deviceExtPrebid = new JSONObject();
-                    JSONObject deviceExtPrebidInstl = new JSONObject();
-
-                    device.put("ext", deviceExt);
-                    deviceExt.put("prebid", deviceExtPrebid);
-                    deviceExtPrebid.put("interstitial", deviceExtPrebidInstl);
-                    deviceExtPrebidInstl.put("minwidthperc", minSizePercWidth);
-                    deviceExtPrebidInstl.put("minheightperc", minSizePercHeight);
-
-                    JSONObject deviceExtWithoutEmptyValues = Util.getObjectWithoutEmptyValues(deviceExt);
-                    device.put("ext", deviceExtWithoutEmptyValues);
-                }
-
-                // POST data that requires context
-                Context context = PrebidMobile.getApplicationContext();
-                if (context != null) {
-                    device.put(PrebidServerSettings.REQUEST_DEVICE_WIDTH, context.getResources().getConfiguration().screenWidthDp);
-                    device.put(PrebidServerSettings.REQUEST_DEVICE_HEIGHT, context.getResources().getConfiguration().screenHeightDp);
-
-                    device.put(PrebidServerSettings.REQUEST_DEVICE_PIXEL_RATIO, context.getResources().getDisplayMetrics().density);
-
-                    TelephonyManager telephonyManager = (TelephonyManager) context
-                            .getSystemService(Context.TELEPHONY_SERVICE);
-                    // Get mobile country codes
-                    if (PrebidServerSettings.getMCC() < 0 || PrebidServerSettings.getMNC() < 0) {
-                        String networkOperator = telephonyManager.getNetworkOperator();
-                        if (!TextUtils.isEmpty(networkOperator)) {
-                            try {
-                                PrebidServerSettings.setMCC(Integer.parseInt(networkOperator.substring(0, 3)));
-                                PrebidServerSettings.setMNC(Integer.parseInt(networkOperator.substring(3)));
-                            } catch (Exception e) {
-                                // Catches NumberFormatException and StringIndexOutOfBoundsException
-                                PrebidServerSettings.setMCC(-1);
-                                PrebidServerSettings.setMNC(-1);
-                            }
-                        }
-                    }
-                    if (PrebidServerSettings.getMCC() > 0 && PrebidServerSettings.getMNC() > 0) {
-                        device.put(PrebidServerSettings.REQUEST_MCC_MNC, String.format(Locale.ENGLISH, "%d-%d", PrebidServerSettings.getMCC(), PrebidServerSettings.getMNC()));
-                    }
-
-                    // Get carrier
-                    if (PrebidServerSettings.getCarrierName() == null) {
-                        try {
-                            PrebidServerSettings.setCarrierName(telephonyManager.getNetworkOperatorName());
-                        } catch (SecurityException ex) {
-                            // Some phones require READ_PHONE_STATE permission just ignore name
-                            PrebidServerSettings.setCarrierName("");
-                        }
-                    }
-                    if (!TextUtils.isEmpty(PrebidServerSettings.getCarrierName()))
-                        device.put(PrebidServerSettings.REQUEST_CARRIER, PrebidServerSettings.getCarrierName());
-
-                    // check connection type
-                    int connection_type = 0;
-                    ConnectivityManager cm = (ConnectivityManager) context
-                            .getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-                    if (activeNetwork != null && activeNetwork.isConnected()) {
-                        NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                        if (wifi != null) {
-                            connection_type = wifi.isConnected() ? 1 : 2;
-                        }
-                    }
-                    device.put(PrebidServerSettings.REQUEST_CONNECTION_TYPE, connection_type);
-
-                    // get location
-                    // Do we have access to location?
-                    if (PrebidMobile.isShareGeoLocation()) {
-                        // get available location through Android LocationManager
-                        if (context.checkCallingOrSelfPermission("android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED
-                                || context.checkCallingOrSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_GRANTED) {
-                            Location lastLocation = null;
-                            LocationManager lm = (LocationManager) context
-                                    .getSystemService(Context.LOCATION_SERVICE);
-
-                            for (String provider_name : lm.getProviders(true)) {
-                                Location l = lm.getLastKnownLocation(provider_name);
-                                if (l == null) {
-                                    continue;
-                                }
-
-                                if (lastLocation == null) {
-                                    lastLocation = l;
-                                } else {
-                                    if (l.getTime() > 0 && lastLocation.getTime() > 0) {
-                                        if (l.getTime() > lastLocation.getTime()) {
-                                            lastLocation = l;
-                                        }
-                                    }
-                                }
-                            }
-                            JSONObject geo = new JSONObject();
-                            if (lastLocation != null) {
-                                Double lat = lastLocation.getLatitude();
-                                Double lon = lastLocation.getLongitude();
-                                geo.put(PrebidServerSettings.REQEUST_GEO_LAT, lat);
-                                geo.put(PrebidServerSettings.REQUEST_GEO_LON, lon);
-                                Integer locDataPrecision = Math.round(lastLocation.getAccuracy());
-                                //Don't report location data from the future
-                                Integer locDataAge = (int) Math.max(0, (System.currentTimeMillis() - lastLocation.getTime()));
-                                geo.put(PrebidServerSettings.REQUEST_GEO_AGE, locDataAge);
-                                geo.put(PrebidServerSettings.REQUEST_GEO_ACCURACY, locDataPrecision);
-                                device.put(PrebidServerSettings.REQUEST_GEO, geo);
-                            }
-                        } else {
-                            LogUtil.w("Location permissions ACCESS_COARSE_LOCATION and/or ACCESS_FINE_LOCATION aren\\'t set in the host app. This may affect demand.");
-                        }
-                    }
-                }
-            } catch (JSONException e) {
-                LogUtil.d("PrebidServerAdapter getDeviceObject() " + e.getMessage());
-            }
-            return device;
-        }
-
-        private JSONObject getAppObject() {
-            JSONObject app = new JSONObject();
-            try {
-                if (!TextUtils.isEmpty(TargetingParams.getBundleName())) {
-                    app.put("bundle", TargetingParams.getBundleName());
-                }
-                if (!TextUtils.isEmpty(PrebidServerSettings.pkgVersion)) {
-                    app.put("ver", PrebidServerSettings.pkgVersion);
-                }
-                if (!TextUtils.isEmpty(PrebidServerSettings.appName)) {
-                    app.put("name", PrebidServerSettings.appName);
-                }
-                if (!TextUtils.isEmpty(TargetingParams.getDomain())) {
-                    app.put("domain", TargetingParams.getDomain());
-                }
-                if (!TextUtils.isEmpty(TargetingParams.getStoreUrl())) {
-                    app.put("storeurl", TargetingParams.getStoreUrl());
-                }
-                JSONObject publisher = new JSONObject();
-                publisher.put("id", PrebidMobile.getPrebidServerAccountId());
-                app.put("publisher", publisher);
-                JSONObject prebid = new JSONObject();
-                prebid.put("source", "prebid-mobile");
-                prebid.put("version", PrebidServerSettings.sdk_version);
-                JSONObject ext = new JSONObject();
-                ext.put("prebid", prebid);
-                app.put("ext", ext);
-            } catch (JSONException e) {
-                LogUtil.d("PrebidServerAdapter getAppObject() " + e.getMessage());
-            }
-            return app;
-
-        }
-
-        private JSONObject getUserObject() {
-            JSONObject user = new JSONObject();
-            try {
-                if (TargetingParams.getYearOfBirth() > 0) {
-                    user.put("yob", TargetingParams.getYearOfBirth());
-                }
-                TargetingParams.GENDER gender = TargetingParams.getGender();
-                String g = "O";
-                switch (gender) {
-                    case FEMALE:
-                        g = "F";
-                        break;
-                    case MALE:
-                        g = "M";
-                        break;
-                    case UNKNOWN:
-                        g = "O";
-                        break;
-                }
-                user.put("gender", g);
-                StringBuilder builder = new StringBuilder();
-                ArrayList<String> keywords = this.requestParams.getKeywords();
-                for (String key : keywords) {
-                    builder.append(key).append(",");
-                }
-                String finalKeywords = builder.toString();
-                if (!TextUtils.isEmpty(finalKeywords)) {
-                    user.put("keywords", finalKeywords);
-                }
-                if (TargetingParams.isSubjectToGDPR() != null) {
-                    JSONObject ext = new JSONObject();
-                    ext.put("consent", TargetingParams.getGDPRConsentString());
-                    user.put("ext", ext);
-                }
-            } catch (JSONException e) {
-                LogUtil.d("PrebidServerAdapter getUserObject() " + e.getMessage());
-            }
-            return user;
-        }
-
-        private JSONObject getRegsObject() {
-            JSONObject regs = new JSONObject();
-            try {
-                JSONObject ext = new JSONObject();
-                Boolean isSubjectToGDPR = TargetingParams.isSubjectToGDPR();
-
-                if (isSubjectToGDPR != null && isSubjectToGDPR) {
-                    ext.put("gdpr", 1);
-                    regs.put("ext", ext);
-                }
-
-                if (TargetingParams.isSubjectToCOPPA()) {
-                    regs.put("coppa", 1);
-                }
-
-            } catch (JSONException e) {
-                LogUtil.d("PrebidServerAdapter getRegsObject() " + e.getMessage());
-            }
-            return regs;
-        }
-
-        private static class NoContextException extends Exception {
+        public static class NoContextException extends Exception {
         }
 
         private static class AsyncTaskResult<T> {

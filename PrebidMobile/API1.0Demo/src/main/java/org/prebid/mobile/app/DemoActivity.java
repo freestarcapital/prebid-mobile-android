@@ -36,10 +36,10 @@ import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubInterstitial;
 import com.mopub.mobileads.MoPubView;
 
+import org.prebid.fs.mobile.OnCompleteListener;
 import org.prebid.mobile.AdUnit;
 import org.prebid.mobile.BannerAdUnit;
 import org.prebid.mobile.InterstitialAdUnit;
-import org.prebid.mobile.OnCompleteListener;
 import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.addendum.AdViewUtils;
 import org.prebid.mobile.addendum.PbFindSizeError;

@@ -14,9 +14,11 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile;
+package org.prebid.fs.mobile;
 
 import android.support.annotation.MainThread;
+
+import org.prebid.mobile.ResultCode;
 
 public interface OnCompleteListener {
     /**

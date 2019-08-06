@@ -18,44 +18,60 @@ package org.prebid.mobile;
 
 import android.support.annotation.Nullable;
 
+import org.prebid.fs.mobile.network.AdNetwork;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
-class RequestParams {
+public class RequestParams {
 
     private String configId = "";
     private AdType adType = AdType.BANNER;
     private HashSet<AdSize> sizes = new HashSet<>();
     private ArrayList<String> keywords;
+    private List<AdNetwork> networks;
+    private List<String> appCats;
     @Nullable
     private AdSize minSizePerc; //non null only for InterstitialAdUnit(String, int, int)
 
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords) {
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks) {
         this.configId = configId;
         this.adType = adType;
         this.sizes = sizes; // for Interstitial this will be null, will use screen width & height in the request
         this.keywords = keywords;
+        this.networks = networks;
     }
 
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, @Nullable AdSize minSizePerc) {
-        this(configId, adType, sizes, keywords);
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks, @Nullable AdSize minSizePerc) {
+        this(configId, adType, sizes, keywords, networks);
         this.minSizePerc = minSizePerc;
     }
 
-    String getConfigId() {
+    public String getConfigId() {
         return this.configId;
     }
 
-    AdType getAdType() {
+    public AdType getAdType() {
         return this.adType;
     }
 
-    HashSet<AdSize> getAdSizes() {
+    public HashSet<AdSize> getAdSizes() {
         return this.sizes;
     }
 
-    ArrayList<String> getKeywords() {
+    public ArrayList<String> getKeywords() {
         return keywords;
+    }
+
+    public List<AdNetwork> getNetworks() { return networks; }
+
+    public List<String> getAppCats() {
+        return appCats;
+    }
+
+    public void setAppCats(List<String> appCats) {
+        this.appCats = appCats;
     }
 
     @Nullable

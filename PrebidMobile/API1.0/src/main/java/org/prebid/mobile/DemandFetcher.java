@@ -22,12 +22,15 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import org.prebid.fs.mobile.OnCompleteListener;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+
 import java.util.HashMap;
 import java.util.UUID;
 
-class DemandFetcher {
+public class DemandFetcher {
 
-    enum STATE {
+   public enum STATE {
         STOPPED,
         RUNNING,
         DESTROYED
@@ -35,6 +38,7 @@ class DemandFetcher {
 
     private STATE state;
     private int periodMillis;
+    private AdUnit adUnit;
     private Object adObject;
     private OnCompleteListener listener;
     private Handler fetcherHandler;
@@ -43,26 +47,36 @@ class DemandFetcher {
     private long timePausedAt = -1;
     private RequestParams requestParams;
 
-    DemandFetcher(@NonNull Object adObj) {
+    public DemandFetcher(AdUnit adUnit, @NonNull Object adObj) {
+        this(adUnit, AdapterHandlerType.PREBID_MODE, adObj);
+//        System.out.println("***BKS*** DF1");
+    }
+
+    public DemandFetcher(AdUnit adUnit, @NonNull AdapterHandlerType type, @NonNull Object adObj) {
+//        System.out.println("***BKS*** DF2");
         this.state = STATE.STOPPED;
+        this.adUnit = adUnit;
         this.periodMillis = 0;
         this.adObject = adObj;
         HandlerThread fetcherThread = new HandlerThread("FetcherThread");
         fetcherThread.start();
         this.fetcherHandler = new Handler(fetcherThread.getLooper());
-        this.requestRunnable = new RequestRunnable();
+        this.requestRunnable = new RequestRunnable(type);
     }
 
-    void setListener(OnCompleteListener listener) {
+   public void setListener(OnCompleteListener listener) {
+//        System.out.println("***BKS*** SL "+listener.getClass().getName());
         this.listener = listener;
     }
 
-    void setRequestParams(RequestParams requestParams) {
+   public void setRequestParams(RequestParams requestParams) {
+//        System.out.println("***BKS*** RP "+requestParams);
         this.requestParams = requestParams;
     }
 
 
-    void setPeriodMillis(int periodMillis) {
+   public void setPeriodMillis(int periodMillis) {
+//        System.out.println("***BKS*** Period "+periodMillis);
         boolean periodChanged = this.periodMillis != periodMillis;
         this.periodMillis = periodMillis;
         if ((periodChanged) && !state.equals(STATE.STOPPED)) {
@@ -72,6 +86,7 @@ class DemandFetcher {
     }
 
     private void stop() {
+//        System.out.println("***BKS*** stop");
         this.requestRunnable.cancelRequest();
         this.fetcherHandler.removeCallbacks(requestRunnable);
         // cancel existing requests
@@ -79,7 +94,8 @@ class DemandFetcher {
         state = STATE.STOPPED;
     }
 
-    void start() {
+   public void start() {
+//        System.out.println("***BKS*** start "+state);
         switch (state) {
             case STOPPED:
                 if (this.periodMillis <= 0) {
@@ -111,7 +127,8 @@ class DemandFetcher {
         }
     }
 
-    void destroy() {
+   public void destroy() {
+        System.out.println("***BKS*** destroy "+state);
         if (state != STATE.DESTROYED) {
             this.adObject = null;
             this.listener = null;
@@ -122,8 +139,10 @@ class DemandFetcher {
         }
     }
 
+    // bks private
     @MainThread
-    private void notifyListener(final ResultCode resultCode) {
+    public void notifyListener(final ResultCode resultCode) {
+//        System.out.println("***BKS*** NLrc "+resultCode);
         LogUtil.d("notifyListener:" + resultCode);
 
         if (listener != null) {
@@ -136,27 +155,30 @@ class DemandFetcher {
         }
     }
 
-    class RequestRunnable implements Runnable {
+   public class RequestRunnable implements Runnable {
         private DemandAdapter demandAdapter;
         private String auctionId;
         private Handler demandHandler;
 
-        RequestRunnable() {
+       public RequestRunnable(AdapterHandlerType type) {
             // Using a separate thread for making demand request so that waiting on currently thread doesn't block actual fetching
             HandlerThread demandThread = new HandlerThread("DemandThread");
             demandThread.start();
             this.demandHandler = new Handler(demandThread.getLooper());
-            this.demandAdapter = new PrebidServerAdapter();
+            this.demandAdapter = new PrebidServerAdapter(type);
             auctionId = UUID.randomUUID().toString();
+//            System.out.println("***BKS*** RR--"+type+" ** "+auctionId+"  **  "+adUnit);
         }
 
-        void cancelRequest() {
+       public void cancelRequest() {
+//            System.out.println("***BKS*** RR-CR");
             this.demandAdapter.stopRequest(auctionId);
         }
 
         @Override
         public void run() {
             // reset state
+//            System.out.print("***BKS*** RR-R ************************** "+auctionId);
             auctionId = UUID.randomUUID().toString();
             lastFetchTime = System.currentTimeMillis();
             // check input values
