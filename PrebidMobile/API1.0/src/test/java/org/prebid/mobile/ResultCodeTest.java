@@ -26,6 +26,9 @@ import com.mopub.mobileads.MoPubView;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.prebid.fs.mobile.OnCompleteListener;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+import org.prebid.fs.mobile.network.AdNetwork;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.prebid.mobile.testutils.MockPrebidServerResponses;
 import org.robolectric.Robolectric;
@@ -253,10 +256,10 @@ public class ResultCodeTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(0, 250));
-        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>());
+        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>(), new ArrayList<AdNetwork>());
         String uuid = UUID.randomUUID().toString();
         adapter.requestDemand(requestParams, mockListener, uuid);
 
@@ -389,10 +392,10 @@ public class ResultCodeTest extends BaseSetup {
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
         DemandAdapter.DemandAdapterListener mockListener = mock(DemandAdapter.DemandAdapterListener.class);
-        PrebidServerAdapter adapter = new PrebidServerAdapter();
+        PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(0, 250));
-        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>());
+        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>(), new ArrayList<AdNetwork>());
         String uuid = UUID.randomUUID().toString();
         adapter.requestDemand(requestParams, mockListener, uuid);
         Robolectric.flushBackgroundThreadScheduler();

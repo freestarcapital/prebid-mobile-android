@@ -19,6 +19,7 @@ package org.prebid.mobile;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.prebid.fs.mobile.network.AdNetwork;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -39,12 +40,12 @@ public class RequestParamsTest {
         sizes.add(new AdSize(320, 50));
         ArrayList<String> keywords = new ArrayList<>();
         keywords.add("test=1");
-        RequestParams requestParams = new RequestParams("123456", AdType.BANNER, sizes, keywords);
+        RequestParams requestParams = new RequestParams("123456", AdType.BANNER, sizes, keywords, new ArrayList<AdNetwork>());
         assertEquals("123456", FieldUtils.readField(requestParams, "configId", true));
         assertEquals(AdType.BANNER, FieldUtils.readField(requestParams, "adType", true));
         assertEquals(sizes, FieldUtils.readField(requestParams, "sizes", true));
         assertEquals(keywords, FieldUtils.readField(requestParams, "keywords", true));
-        requestParams = new RequestParams("123456", AdType.INTERSTITIAL, null, keywords);
+        requestParams = new RequestParams("123456", AdType.INTERSTITIAL, null, keywords, new ArrayList<AdNetwork>());
         assertEquals("123456", FieldUtils.readField(requestParams, "configId", true));
         assertEquals(AdType.INTERSTITIAL, FieldUtils.readField(requestParams, "adType", true));
         assertEquals(null, FieldUtils.readField(requestParams, "sizes", true));
@@ -60,7 +61,7 @@ public class RequestParamsTest {
 
         AdSize minSizePerc = new AdSize(50, 70);
 
-        RequestParams requestParams = new RequestParams("123456", AdType.INTERSTITIAL, sizes, keywords, minSizePerc);
+        RequestParams requestParams = new RequestParams("123456", AdType.INTERSTITIAL, sizes, keywords, new ArrayList<AdNetwork>(), minSizePerc);
 
         AdSize minAdSizePerc = requestParams.getMinSizePerc();
         assertNotNull(minAdSizePerc);
