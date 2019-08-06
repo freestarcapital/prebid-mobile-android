@@ -14,28 +14,17 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile;
+package org.prebid.fs.mobile;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.annotation.MainThread;
 
-public class InterstitialAdUnit extends AdUnit {
+import org.prebid.mobile.ResultCode;
 
-    @Nullable
-    private AdSize minSizePerc = null;
-
-    public InterstitialAdUnit(@NonNull String configId) {
-        super(configId, AdType.INTERSTITIAL);
-    }
-
-    public InterstitialAdUnit(@NonNull String configId, int minWidthPerc, int minHeightPerc) {
-
-        this(configId);
-        minSizePerc = new AdSize(minWidthPerc, minHeightPerc);
-    }
-
-    @Nullable
-    AdSize getMinSizePerc() {
-        return minSizePerc;
-    }
+public interface OnCompleteListener {
+    /**
+     * This method will be called when PrebidMobile Mobile finishes attaching keywords to your ad object.
+     * @param resultCode see object class definition for details
+     */
+    @MainThread
+    void onComplete(ResultCode resultCode);
 }

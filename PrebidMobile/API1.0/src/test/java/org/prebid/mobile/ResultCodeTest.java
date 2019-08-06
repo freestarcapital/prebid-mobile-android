@@ -26,10 +26,9 @@ import com.mopub.mobileads.MoPubView;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.prebid.mobile.adapter.AdapterHandlerType;
-import org.prebid.mobile.adapter.DemandAdapter;
-import org.prebid.mobile.adapter.PrebidServerAdapter;
-import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.fs.mobile.OnCompleteListener;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+import org.prebid.fs.mobile.network.AdNetwork;
 import org.prebid.mobile.testutils.BaseSetup;
 import org.prebid.mobile.testutils.MockPrebidServerResponses;
 import org.robolectric.Robolectric;
@@ -90,7 +89,7 @@ public class ResultCodeTest extends BaseSetup {
             OnCompleteListener mockListener = mock(OnCompleteListener.class);
             adUnit.fetchDemand(testView, mockListener);
             DemandFetcher fetcher = (DemandFetcher) FieldUtils.readField(adUnit, "fetcher", true);
-            PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
+            PrebidMobile.setTimeoutMillis(Integer.MAX_VALUE);
             ShadowLooper fetcherLooper = shadowOf(fetcher.getHandler().getLooper());
             fetcherLooper.runOneTask();
             ShadowLooper demandLooper = shadowOf(fetcher.getDemandHandler().getLooper());
@@ -118,7 +117,7 @@ public class ResultCodeTest extends BaseSetup {
             OnCompleteListener mockListener = mock(OnCompleteListener.class);
             adUnit.fetchDemand(testRequest, mockListener);
             DemandFetcher fetcher = (DemandFetcher) FieldUtils.readField(adUnit, "fetcher", true);
-            PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
+            PrebidMobile.setTimeoutMillis(Integer.MAX_VALUE);
             ShadowLooper fetcherLooper = shadowOf(fetcher.getHandler().getLooper());
             fetcherLooper.runOneTask();
             ShadowLooper demandLooper = shadowOf(fetcher.getDemandHandler().getLooper());
@@ -171,7 +170,7 @@ public class ResultCodeTest extends BaseSetup {
         OnCompleteListener mockListener = mock(OnCompleteListener.class);
         adUnit.fetchDemand(testRequest, mockListener);
         DemandFetcher fetcher = (DemandFetcher) FieldUtils.readField(adUnit, "fetcher", true);
-        PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
+        PrebidMobile.setTimeoutMillis(Integer.MAX_VALUE);
         ShadowLooper fetcherLooper = shadowOf(fetcher.getHandler().getLooper());
         fetcherLooper.runOneTask();
         ShadowLooper demandLooper = shadowOf(fetcher.getDemandHandler().getLooper());
@@ -252,7 +251,7 @@ public class ResultCodeTest extends BaseSetup {
     @Test
     public void testTimeOut() throws Exception {
         PrebidMobile.setPrebidServerHost(Host.APPNEXUS);
-        PrebidMobile.timeoutMillis = 30;
+        PrebidMobile.setTimeoutMillis(30);
         PrebidMobile.setPrebidServerAccountId("b7adad2c-e042-4126-8ca1-b3caac7d3e5c");
         PrebidMobile.setShareGeoLocation(true);
         PrebidMobile.setApplicationContext(activity.getApplicationContext());
@@ -260,7 +259,7 @@ public class ResultCodeTest extends BaseSetup {
         PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(0, 250));
-        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>());
+        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>(), new ArrayList<AdNetwork>());
         String uuid = UUID.randomUUID().toString();
         adapter.requestDemand(requestParams, mockListener, uuid);
 
@@ -289,7 +288,7 @@ public class ResultCodeTest extends BaseSetup {
             OnCompleteListener mockListener = mock(OnCompleteListener.class);
             adUnit.fetchDemand(testView, mockListener);
             DemandFetcher fetcher = (DemandFetcher) FieldUtils.readField(adUnit, "fetcher", true);
-            PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
+            PrebidMobile.setTimeoutMillis(Integer.MAX_VALUE);
             ShadowLooper fetcherLooper = shadowOf(fetcher.getHandler().getLooper());
             fetcherLooper.runOneTask();
             ShadowLooper demandLooper = shadowOf(fetcher.getDemandHandler().getLooper());
@@ -320,7 +319,7 @@ public class ResultCodeTest extends BaseSetup {
         OnCompleteListener mockListener = mock(OnCompleteListener.class);
         adUnit.fetchDemand(testView, mockListener);
         DemandFetcher fetcher = (DemandFetcher) FieldUtils.readField(adUnit, "fetcher", true);
-        PrebidMobile.timeoutMillis = Integer.MAX_VALUE;
+        PrebidMobile.setTimeoutMillis(Integer.MAX_VALUE);
         ShadowLooper fetcherLooper = shadowOf(fetcher.getHandler().getLooper());
         fetcherLooper.runOneTask();
         ShadowLooper demandLooper = shadowOf(fetcher.getDemandHandler().getLooper());
@@ -396,7 +395,7 @@ public class ResultCodeTest extends BaseSetup {
         PrebidServerAdapter adapter = new PrebidServerAdapter(AdapterHandlerType.PREBID_MODE);
         HashSet<AdSize> sizes = new HashSet<>();
         sizes.add(new AdSize(0, 250));
-        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>());
+        RequestParams requestParams = new RequestParams("e2edc23f-0b3b-4203-81b5-7cc97132f418", AdType.BANNER, sizes, new ArrayList<String>(), new ArrayList<AdNetwork>());
         String uuid = UUID.randomUUID().toString();
         adapter.requestDemand(requestParams, mockListener, uuid);
         Robolectric.flushBackgroundThreadScheduler();

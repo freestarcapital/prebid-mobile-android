@@ -13,15 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+
 package org.prebid.mobile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.os.health.HealthStats;
 
 import java.util.Calendar;
+
 
 /**
  * TargetingParams class sets the Targeting parameters like yob, gender, location
@@ -30,12 +32,13 @@ import java.util.Calendar;
 public class TargetingParams {
     //region Static Variables
     private static int yob = 0;
-    private static Gender gender = Gender.UNKNOWN;
+    private static GENDER gender = GENDER.UNKNOWN;
     private static String domain = "";
     private static String storeUrl = "";
     private static String bundleName = null;
     private static final String PREBID_CONSENT_STRING_KEY = "Prebid_GDPR_consent_strings";
     private static final String IABConsent_ConsentString = "IABConsent_ConsentString";
+    private static final String PREBID_COPPA_KEY = "Prebid_COPPA";
     private static final String PREBID_GDPR_KEY = "Prebid_GDPR";
     private static final String IABConsent_SubjectToGDPR = "IABConsent_SubjectToGDPR";
     //endregion
@@ -68,6 +71,28 @@ public class TargetingParams {
             }
         }
         return null;
+    }
+
+    public static void setSubjectToCOPPA(boolean consent) {
+        Context context = PrebidMobile.getApplicationContext();
+        if (context != null) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean(PREBID_COPPA_KEY, consent);
+            editor.apply();
+        }
+    }
+
+    public static boolean isSubjectToCOPPA() {
+        boolean result = false;
+        Context context = PrebidMobile.getApplicationContext();
+        if (context != null) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            if (pref.contains(PREBID_COPPA_KEY)) {
+                result = pref.getBoolean(PREBID_COPPA_KEY, false);
+            }
+        }
+        return result;
     }
 
     public static void setSubjectToGDPR(boolean consent) {
@@ -121,12 +146,18 @@ public class TargetingParams {
         }
     }
 
+    public enum GENDER {
+        FEMALE,
+        MALE,
+        UNKNOWN
+    }
+
     /**
      * Get the current user's gender, if it's available.  The default value is UNKNOWN.
      *
      * @return The user's gender.
      */
-    public static Gender getGender() {
+    public static GENDER getGender() {
         return gender;
     }
 
@@ -137,7 +168,7 @@ public class TargetingParams {
      *
      * @param gender The user's gender.
      */
-    public static void setGender(Gender gender) {
+    public static void setGender(GENDER gender) {
         TargetingParams.gender = gender;
     }
 

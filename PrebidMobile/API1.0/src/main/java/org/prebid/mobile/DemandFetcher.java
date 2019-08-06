@@ -22,17 +22,15 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
-import org.prebid.mobile.adapter.AdapterHandlerType;
-import org.prebid.mobile.adapter.DemandAdapter;
-import org.prebid.mobile.adapter.PrebidServerAdapter;
-import org.prebid.mobile.adapter.ResultCode;
+import org.prebid.fs.mobile.OnCompleteListener;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 public class DemandFetcher {
 
-    public enum STATE {
+   public enum STATE {
         STOPPED,
         RUNNING,
         DESTROYED
@@ -66,18 +64,18 @@ public class DemandFetcher {
         this.requestRunnable = new RequestRunnable(type);
     }
 
-    public void setListener(OnCompleteListener listener) {
+   public void setListener(OnCompleteListener listener) {
 //        System.out.println("***BKS*** SL "+listener.getClass().getName());
         this.listener = listener;
     }
 
-    public void setRequestParams(RequestParams requestParams) {
+   public void setRequestParams(RequestParams requestParams) {
 //        System.out.println("***BKS*** RP "+requestParams);
         this.requestParams = requestParams;
     }
 
 
-    public void setPeriodMillis(int periodMillis) {
+   public void setPeriodMillis(int periodMillis) {
 //        System.out.println("***BKS*** Period "+periodMillis);
         boolean periodChanged = this.periodMillis != periodMillis;
         this.periodMillis = periodMillis;
@@ -96,7 +94,7 @@ public class DemandFetcher {
         state = STATE.STOPPED;
     }
 
-    public void start() {
+   public void start() {
 //        System.out.println("***BKS*** start "+state);
         switch (state) {
             case STOPPED:
@@ -129,8 +127,8 @@ public class DemandFetcher {
         }
     }
 
-    public void destroy() {
-//        System.out.println("***BKS*** destroy "+state);
+   public void destroy() {
+        System.out.println("***BKS*** destroy "+state);
         if (state != STATE.DESTROYED) {
             this.adObject = null;
             this.listener = null;
@@ -157,12 +155,12 @@ public class DemandFetcher {
         }
     }
 
-    public class RequestRunnable implements Runnable {
+   public class RequestRunnable implements Runnable {
         private DemandAdapter demandAdapter;
         private String auctionId;
         private Handler demandHandler;
 
-        public RequestRunnable(AdapterHandlerType type) {
+       public RequestRunnable(AdapterHandlerType type) {
             // Using a separate thread for making demand request so that waiting on currently thread doesn't block actual fetching
             HandlerThread demandThread = new HandlerThread("DemandThread");
             demandThread.start();
@@ -172,7 +170,7 @@ public class DemandFetcher {
 //            System.out.println("***BKS*** RR--"+type+" ** "+auctionId+"  **  "+adUnit);
         }
 
-        public void cancelRequest() {
+       public void cancelRequest() {
 //            System.out.println("***BKS*** RR-CR");
             this.demandAdapter.stopRequest(auctionId);
         }
@@ -182,12 +180,6 @@ public class DemandFetcher {
             // reset state
 //            System.out.print("***BKS*** RR-R ************************** "+auctionId);
             auctionId = UUID.randomUUID().toString();
-            if (adUnit != null) {
-                adUnit.setAuctionId(auctionId);
-//                System.out.println("  adunit: "+adUnit.getAuctionId());
-            } else {
-//                System.out.println("bks");
-            }
             lastFetchTime = System.currentTimeMillis();
             // check input values
             demandHandler.post(new Runnable() {
@@ -201,7 +193,6 @@ public class DemandFetcher {
                             if (RequestRunnable.this.auctionId.equals(auctionId)) {
                                 Util.apply(demand, DemandFetcher.this.adObject);
                                 LogUtil.i("Successfully set the following keywords: " + demand.toString());
-                                AuctionMap.getInstance().putDemand(auctionId, demand);
                                 notifyListener(ResultCode.SUCCESS);
                             }
                         }
@@ -226,14 +217,12 @@ public class DemandFetcher {
 
     //region exposed for testing
     @VisibleForTesting
-    public Handler getHandler() {
-//        System.out.println("***BKS*** GH");
+    Handler getHandler() {
         return this.fetcherHandler;
     }
 
     @VisibleForTesting
-    public Handler getDemandHandler() {
-//        System.out.println("***BKS*** GDH");
+    Handler getDemandHandler() {
         RequestRunnable runnable = this.requestRunnable;
         return runnable.demandHandler;
     }

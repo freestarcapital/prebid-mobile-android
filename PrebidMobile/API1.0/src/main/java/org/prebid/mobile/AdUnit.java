@@ -24,9 +24,9 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import org.prebid.mobile.adapter.AdapterHandlerType;
-import org.prebid.mobile.adapter.ResultCode;
-import org.prebid.mobile.network.AdNetwork;
+import org.prebid.fs.mobile.OnCompleteListener;
+import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+import org.prebid.fs.mobile.network.AdNetwork;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +37,7 @@ public abstract class AdUnit {
 
     private String configId;
     private AdType adType;
-    private final ArrayList<String> keywords = new ArrayList<>();
+    private ArrayList<String> keywords;
     private DemandFetcher fetcher;
     private int periodMillis;
     private final ArrayList<AdNetwork> networks = new ArrayList<>();
@@ -47,6 +47,7 @@ public abstract class AdUnit {
         this.configId = configId;
         this.adType = adType;
         this.periodMillis = 0; // by default no auto refresh
+        this.keywords = new ArrayList<>();
     }
 
     public void setAutoRefreshPeriodMillis(@IntRange(from = MIN_AUTO_REFRESH_PERIOD_MILLIS) int periodMillis) {
@@ -100,6 +101,13 @@ public abstract class AdUnit {
                 }
             }
         }
+        AdSize minSizePerc = null;
+        if (this instanceof InterstitialAdUnit) {
+            InterstitialAdUnit interstitialAdUnit = (InterstitialAdUnit) this;
+
+            minSizePerc = interstitialAdUnit.getMinSizePerc();
+        }
+
         Context context = PrebidMobile.getApplicationContext();
         if (context != null) {
             ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -116,7 +124,7 @@ public abstract class AdUnit {
         }
         if (Util.supportedAdObject(adObj)) {
             fetcher = new DemandFetcher(this, type, adObj);
-            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks);
+            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks, minSizePerc);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);
             fetcher.setListener(listener);

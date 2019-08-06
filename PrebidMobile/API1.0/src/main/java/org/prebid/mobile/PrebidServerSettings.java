@@ -66,7 +66,7 @@ public class PrebidServerSettings {
     public static final String deviceModel = Build.MODEL;
     public static final String os = "android";
     public static String userAgent = null;
-    public static String sdk_version = "1.0";
+    public static String sdk_version = "1.1.2";
     public static String pkgVersion = "";
     public static String appName = "";
     private static int mnc = -1;

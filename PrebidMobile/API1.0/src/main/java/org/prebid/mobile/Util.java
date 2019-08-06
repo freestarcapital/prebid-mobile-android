@@ -17,7 +17,18 @@
 package org.prebid.mobile;
 
 import android.os.Bundle;
+import android.support.annotation.CheckResult;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.View;
+
+import org.prebid.mobile.addendum.AdViewUtils;
+import org.prebid.mobile.addendum.PbFindSizeError;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,15 +36,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-class Util {
+public class Util {
 
-    private static final Random RANDOM = new Random();
     static final String MOPUB_BANNER_VIEW_CLASS = "com.mopub.mobileads.MoPubView";
     static final String MOPUB_INTERSTITIAL_CLASS = "com.mopub.mobileads.MoPubInterstitial";
     static final String DFP_AD_REQUEST_CLASS = "com.google.android.gms.ads.doubleclick.PublisherAdRequest";
+    private static final Random RANDOM = new Random();
     private static final HashSet<String> reservedKeys;
     private static final int MoPubQueryStringLimit = 4000;
 
@@ -43,6 +55,125 @@ class Util {
 
     private Util() {
 
+    }
+
+    /**
+     *@deprecated Please migrate to - AdViewUtils.findPrebidCreativeSize(View, AdViewUtils.PbFindSizeListener)
+     *@see AdViewUtils#findPrebidCreativeSize(View, AdViewUtils.PbFindSizeListener)
+     */
+    @Deprecated
+    public static void findPrebidCreativeSize(@Nullable View adView, final CreativeSizeCompletionHandler completionHandler) {
+        AdViewUtils.findPrebidCreativeSize(adView, new AdViewUtils.PbFindSizeListener() {
+            @Override
+            public void success(int width, int height) {
+                completionHandler.onSize(new CreativeSize(width, height));
+
+            }
+
+            @Override
+            public void failure(@NonNull PbFindSizeError error) {
+                LogUtil.w("Missing failure handler, please migrate to - Util.findPrebidCreativeSize(View, CreativeSizeResultHandler)");
+                completionHandler.onSize(null); // backwards compatibility
+            }
+        });
+
+    }
+
+    @Nullable
+    static JSONObject getObjectWithoutEmptyValues(@NonNull JSONObject jsonObject) {
+
+        JSONObject result = null;
+        try {
+            JSONObject clone = new JSONObject(jsonObject.toString());
+            removeEntryWithoutValue(clone);
+
+            if (clone.length() > 0) {
+                result = clone;
+            }
+
+        } catch (JSONException e) {
+            LogUtil.e("message:" + e.getMessage());
+        }
+
+        return result;
+    }
+
+    private static void removeEntryWithoutValue(@NonNull JSONObject map) throws JSONException {
+        Iterator<String> iterator = map.keys();
+
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+
+            Object value = map.opt(key);
+            if (value != null) {
+
+                if (value instanceof JSONObject) {
+
+                    JSONObject mapValue = (JSONObject)value;
+                    removeEntryWithoutValue(mapValue);
+
+                    if (mapValue.length() == 0) {
+                        iterator.remove();
+                    }
+                } else if (value instanceof JSONArray) {
+
+                    JSONArray arrayValue = (JSONArray)value;
+                    arrayValue = removeEntryWithoutValue(arrayValue);
+
+                    map.put(key, arrayValue);
+
+                    if (arrayValue.length() == 0) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+    }
+
+    @CheckResult
+    private static JSONArray removeEntryWithoutValue(@NonNull JSONArray array) throws JSONException {
+
+        for (int i = 0; i < array.length(); i++) {
+
+            Object value = array.opt(i);
+            if (value != null) {
+
+                if (value instanceof JSONObject) {
+
+                    JSONObject mapValue = (JSONObject)value;
+                    removeEntryWithoutValue(mapValue);
+
+                    if (mapValue.length() == 0) {
+                        array = getJsonArrayWithoutEntryByIndex(array, i);
+                    }
+                } else if (value instanceof JSONArray) {
+                    JSONArray arrayValue = (JSONArray)value;
+                    arrayValue = removeEntryWithoutValue(arrayValue);
+
+                    array.put(i, arrayValue);
+
+                    if (arrayValue.length() == 0) {
+                        array = getJsonArrayWithoutEntryByIndex(array, i);
+                    }
+                }
+            }
+
+        }
+
+        return array;
+    }
+
+    @CheckResult
+    private static JSONArray getJsonArrayWithoutEntryByIndex(JSONArray jsonArray, int pos) throws JSONException {
+        JSONArray result = new JSONArray();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            if (i != pos) {
+                result.put(jsonArray.get(i));
+            }
+        }
+
+        return result;
     }
 
     static Class getClassFromString(String className) {
@@ -279,6 +410,64 @@ class Util {
             for (String key : reservedKeys) {
                 bundle.remove(key);
             }
+        }
+    }
+
+    public interface CreativeSizeCompletionHandler {
+        void onSize(@Nullable CreativeSize size);
+    }
+
+    /**
+     * Utility Size class
+     */
+    public static class CreativeSize {
+        private int width;
+        private int height;
+
+        /**
+         * Creates an ad size object with width and height as specified
+         *
+         * @param width  width of the ad container
+         * @param height height of the ad container
+         */
+        public CreativeSize(int width, int height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        /**
+         * Returns the width of the ad container
+         *
+         * @return width
+         */
+        public int getWidth() {
+            return width;
+        }
+
+        /**
+         * Returns the height of the ad container
+         *
+         * @return height
+         */
+        public int getHeight() {
+            return height;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CreativeSize adSize = (CreativeSize) o;
+
+            if (width != adSize.width) return false;
+            return height == adSize.height;
+        }
+
+        @Override
+        public int hashCode() {
+            String size = width + "x" + height;
+            return size.hashCode();
         }
     }
 }
