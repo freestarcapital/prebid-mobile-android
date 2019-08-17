@@ -11,6 +11,8 @@ public final class NetworkFactory {
             return new Rhythmone();
         } else if (Rubicon.NAME.equals(name)) {
             return new Rubicon();
+        } else if (OftMedia.NAME.equals(name)) {
+            return new OftMedia();
         } else {
             return null;
         }

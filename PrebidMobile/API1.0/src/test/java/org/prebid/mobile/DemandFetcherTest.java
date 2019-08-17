@@ -20,7 +20,6 @@ package org.prebid.mobile;
 import android.os.Bundle;
 
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
-import com.mopub.mobileads.MoPubView;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
@@ -306,6 +305,7 @@ public class DemandFetcherTest extends BaseSetup {
         Assert.assertEquals("prebid-cache-europe.rubiconproject.com", bundle.get(hb_cache_host_rubicon));
     }
 
+    /*
     @Test
     public void testSingleRequestOneBidResponseForMoPubAdObject() throws Exception {
         if (successfulMockServerStarted) {
@@ -428,6 +428,7 @@ public class DemandFetcherTest extends BaseSetup {
             assertTrue("Mock server was not started", false);
         }
     }
+    */
 
     @Test
     public void testAutoRefreshForDFPAdObject() throws Exception {

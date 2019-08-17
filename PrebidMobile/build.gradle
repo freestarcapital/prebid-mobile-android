@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 ext {
-    prebidVersionName = "FS-1.1.6"
+    prebidVersionName = "FS-1.2.0"
     prebidVersionCode = 1
     minSDKVersion = 16
     targetSDKVersion = 28
@@ -12,7 +12,7 @@ buildscript {
     repositories {
         jcenter()
         google()
-//        mavenLocal()
+        mavenLocal()
     }
 
     dependencies {
@@ -30,8 +30,7 @@ allprojects {
         jcenter() // includes the MoPub SDK and AVID library
         maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
         maven { url 'https://maven.google.com' } // necessary for Android API 26
-//        mavenLocal()
+        mavenLocal()
     }
 
 }
-

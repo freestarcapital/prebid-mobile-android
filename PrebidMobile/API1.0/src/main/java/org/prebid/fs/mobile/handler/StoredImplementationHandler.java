@@ -25,6 +25,8 @@ import org.prebid.mobile.RequestParams;
 import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.TargetingParams;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -53,7 +55,7 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
             }
             // add app
             JSONObject app = getAppObject(requestParams);
-            if (device != null && device.length() > 0) {
+            if (app != null && app.length() > 0) {
                 postData.put(PrebidServerSettings.REQUEST_APP, app);
             }
             // add user
@@ -114,7 +116,6 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
             JSONObject storedrequest = new JSONObject();
             prebid.put("storedrequest", storedrequest);
             storedrequest.put("id", requestParams.getConfigId());
-            imp.put("ext", ext);
 
             impConfigs.put(imp);
         } catch (JSONException e) {
@@ -159,8 +160,7 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
 
                 device.put(PrebidServerSettings.REQUEST_DEVICE_PIXEL_RATIO, context.getResources().getDisplayMetrics().density);
 
-                TelephonyManager telephonyManager = (TelephonyManager) context
-                        .getSystemService(Context.TELEPHONY_SERVICE);
+                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
                 // Get mobile country codes
                 if (PrebidServerSettings.getMCC() < 0 || PrebidServerSettings.getMNC() < 0) {
                     String networkOperator = telephonyManager.getNetworkOperator();

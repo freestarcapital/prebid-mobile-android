@@ -142,7 +142,7 @@ public class DemandFetcher {
     // bks private
     @MainThread
     public void notifyListener(final ResultCode resultCode) {
-//        System.out.println("***BKS*** NLrc "+resultCode);
+        System.out.println("***BKS*** NLrc "+resultCode);
         LogUtil.d("notifyListener:" + resultCode);
 
         if (listener != null) {
@@ -167,19 +167,22 @@ public class DemandFetcher {
             this.demandHandler = new Handler(demandThread.getLooper());
             this.demandAdapter = new PrebidServerAdapter(type);
             auctionId = UUID.randomUUID().toString();
-//            System.out.println("***BKS*** RR--"+type+" ** "+auctionId+"  **  "+adUnit);
+            System.out.println("***BKS*** RR--"+type+" ** "+auctionId+"  **  "+adUnit);
         }
 
        public void cancelRequest() {
-//            System.out.println("***BKS*** RR-CR");
+            System.out.println("***BKS*** RR-CR");
             this.demandAdapter.stopRequest(auctionId);
         }
 
         @Override
         public void run() {
             // reset state
-//            System.out.print("***BKS*** RR-R ************************** "+auctionId);
+            System.out.print("***BKS*** RR-R ************************** "+auctionId);
             auctionId = UUID.randomUUID().toString();
+            if (adUnit != null) {
+                adUnit.setAuctionId(auctionId);
+            }
             lastFetchTime = System.currentTimeMillis();
             // check input values
             demandHandler.post(new Runnable() {

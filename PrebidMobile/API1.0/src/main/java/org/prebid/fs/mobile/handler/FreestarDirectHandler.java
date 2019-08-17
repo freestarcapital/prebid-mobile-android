@@ -85,7 +85,6 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
         try {
             JSONObject imp = new JSONObject();
             JSONObject ext = new JSONObject();
-//            imp.put("id", "PrebidMobile");
             imp.put("id", requestParams.getConfigId());
             imp.put("secure", 1);
             if (requestParams.getAdType().equals(AdType.INTERSTITIAL)) {
@@ -111,42 +110,12 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                 imp.put("banner", banner);
             }
             imp.put("ext", ext);
-
-//            JSONObject prebid = new JSONObject();
-//            ext.put("prebid", prebid);
-//            JSONObject storedrequest = new JSONObject();
-//            prebid.put("storedrequest", storedrequest);
-//            storedrequest.put("id", requestParams.getConfigId());
-            imp.put("ext", ext);
-
             List<AdNetwork> networks = requestParams.getNetworks();
             for (AdNetwork network : networks) {
                 JSONObject networkJson = new JSONObject();
                 ext.put(network.getName(), networkJson);
                 network.populate(networkJson);
             }
-
-            /*
-            JSONObject rhythmone = new JSONObject();
-            ext.put("rhythmone", rhythmone);
-            rhythmone.put("placementId", "79261");
-            rhythmone.put("path", "mvo");
-            rhythmone.put("zone", "1r");
-
-            JSONObject rubicon = new JSONObject();
-            ext.put("rubicon", rubicon);
-            rubicon.put("accountId", 16924);
-            rubicon.put("siteId", 222354);
-            rubicon.put("zoneId", 1141820);
-
-            JSONObject appnexus = new JSONObject();
-            ext.put("appnexus", appnexus);
-            appnexus.put("placementId", 14604207);
-
-            JSONObject districtm = new JSONObject();
-            ext.put("districtm", districtm);
-            districtm.put("placementId", 15832560);
-            */
 
             impConfigs.put(imp);
         } catch (JSONException e) {
@@ -341,14 +310,16 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             String g = "O";
             switch (gender) {
                 case FEMALE:
-                    user.put("gender", "F");
+                    g = "F";
                     break;
                 case MALE:
-                    user.put("gender", "M");
+                    g = "M";
                     break;
                 case UNKNOWN:
+                    g = "O";
                     break;
             }
+            user.put("gender", g);
             StringBuilder builder = new StringBuilder();
             List<String> keywords = requestParams.getKeywords();
             for (String key : keywords) {
@@ -399,10 +370,6 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             JSONObject bids = new JSONObject();
             cache.put("bids", bids);
             prebid.put("cache", cache);
-
-//            JSONObject storedRequest = new JSONObject();
-//            storedRequest.put("id", PrebidMobile.getPrebidServerAccountId());
-//            prebid.put("storedrequest", storedRequest);
 
             JSONObject aliasesRequest = new JSONObject();
             prebid.put("aliases", aliasesRequest);
@@ -490,7 +457,7 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
                     }
                 }
             } catch (JSONException e) {
-//BKS                LogUtil.e("Error processing JSON response.");
+                LogUtil.e("Error processing JSON response.");
                 e.printStackTrace();
             }
         }

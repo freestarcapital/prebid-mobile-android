@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;
@@ -64,7 +63,7 @@ public class PrebidServerAdapter implements DemandAdapter {
     private final ArrayList<ServerConnector> serverConnectors;
     private final PrebidAdapterHandler adapterHandler;
 
-    PrebidServerAdapter(AdapterHandlerType type) {
+    public PrebidServerAdapter(AdapterHandlerType type) {
         serverConnectors = new ArrayList<>();
         if (type == AdapterHandlerType.FREESTAR_MODE) {
             adapterHandler = new FreestarDirectHandler();
@@ -107,7 +106,7 @@ public class PrebidServerAdapter implements DemandAdapter {
         private DemandAdapterListener listener;
         private boolean timeoutFired;
 
-        ServerConnector(PrebidServerAdapter prebidServerAdapter, PrebidAdapterHandler adapterHandler,  DemandAdapterListener listener, RequestParams requestParams, String auctionId) {
+       ServerConnector(PrebidServerAdapter prebidServerAdapter, PrebidAdapterHandler adapterHandler,  DemandAdapterListener listener, RequestParams requestParams, String auctionId) {
             this.prebidServerAdapter = new WeakReference<>(prebidServerAdapter);
             this.adapterHandler = adapterHandler;
             this.listener = listener;
@@ -125,113 +124,127 @@ public class PrebidServerAdapter implements DemandAdapter {
 
         @Override
         @WorkerThread
-        protected AsyncTaskResult<JSONObject> doInBackground(Object... objects) {
-            try {
-                long demandFetchStartTime = System.currentTimeMillis();
-                URL url = new URL(getHost());
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setDoOutput(true);
-                conn.setDoInput(true);
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty("Accept", "application/json");
-                String existingCookie = getExistingCookie();
-                if (existingCookie != null) {
-                    conn.setRequestProperty(PrebidServerSettings.COOKIE_HEADER, existingCookie);
-                } // todo still pass cookie if limit ad tracking?
+        public AsyncTaskResult<JSONObject> doInBackground(Object... objects) {
+           return doBks(objects);
+         }
 
-                conn.setRequestMethod("POST");
-                conn.setConnectTimeout(PrebidMobile.getTimeoutMillis());
+       public AsyncTaskResult<JSONObject> doBks(Object... objects) {
+           try {
+               long demandFetchStartTime = System.currentTimeMillis();
+               URL url = new URL(getHost());
+               LogUtil.d("BKSBKS HOST: "+url);
+               HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+               conn.setDoOutput(true);
+               conn.setDoInput(true);
+               conn.setRequestProperty("Content-Type", "application/json");
+               conn.setRequestProperty("Accept", "application/json");
+               String existingCookie = getExistingCookie();
+               if (existingCookie != null) {
+                   conn.setRequestProperty(PrebidServerSettings.COOKIE_HEADER, existingCookie);
+               } // todo still pass cookie if limit ad tracking?
 
-                // Add post data
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
-                JSONObject postData = getPostData();
-                LogUtil.d("Sending request for auction " + auctionId + " with post data: " + postData.toString());
-                wr.write(postData.toString());
-                wr.flush();
+               conn.setRequestMethod("POST");
+               conn.setConnectTimeout(PrebidMobile.getTimeoutMillis());
 
-                // Start the connection
-                conn.connect();
+               // Add post data
+               OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+               JSONObject postData = getPostData();
+               LogUtil.d("Sending request for auction " + auctionId + " with post data: " + postData.toString());
+               wr.write(postData.toString());
+               wr.flush();
 
-                // Read request response
-                int httpResult = conn.getResponseCode();
-                long demandFetchEndTime = System.currentTimeMillis();
-                if (httpResult == HttpURLConnection.HTTP_OK) {
-                    StringBuilder builder = new StringBuilder();
-                    InputStream is = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
-                    }
-                    reader.close();
-                    is.close();
-                    String result = builder.toString();
-                    JSONObject response = new JSONObject(result);
-                    httpCookieSync(conn.getHeaderFields());
-                    // in the future, this can be improved to parse response base on request versions
-                    if (!PrebidMobile.timeoutMillisUpdated) {
-                        int tmaxRequest = -1;
-                        try {
-                            tmaxRequest = response.getJSONObject("ext").getInt("tmaxrequest");
-                        } catch (JSONException e) {
-                            // ignore this
-                        }
-                        if (tmaxRequest >= 0) {
-                            PrebidMobile.setTimeoutMillis(Math.min((int) (demandFetchEndTime - demandFetchStartTime) + tmaxRequest + 200, 2000)); // adding 200ms as safe time
-                            PrebidMobile.timeoutMillisUpdated = true;
-                        }
-                    }
-                    return new AsyncTaskResult<>(response);
-                } else if (httpResult == HttpURLConnection.HTTP_BAD_REQUEST) {
-                    StringBuilder builder = new StringBuilder();
-                    InputStream is = conn.getErrorStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
-                    }
-                    reader.close();
-                    is.close();
-                    String result = builder.toString();
-                    LogUtil.d("Getting response for auction " + getAuctionId() + ": " + result);
-                    Pattern storedRequestNotFound = Pattern.compile("^Invalid request: Stored Request with ID=\".*\" not found.");
-                    Pattern storedImpNotFound = Pattern.compile("^Invalid request: Stored Imp with ID=\".*\" not found.");
-                    Pattern invalidBannerSize = Pattern.compile("^Invalid request: Request imp\\[\\d\\].banner.format\\[\\d\\] must define non-zero \"h\" and \"w\" properties.");
-                    Pattern invalidInterstitialSize = Pattern.compile("Invalid request: Unable to set interstitial size list");
-                    Matcher m = storedRequestNotFound.matcher(result);
-                    Matcher m2 = invalidBannerSize.matcher(result);
-                    Matcher m3 = storedImpNotFound.matcher(result);
-                    Matcher m4 = invalidInterstitialSize.matcher(result);
-                    if (m.find() || result.contains("No stored request")) {
-                        return new AsyncTaskResult<>(ResultCode.INVALID_ACCOUNT_ID);
-                    } else if (m3.find() || result.contains("No stored imp")) {
-                        return new AsyncTaskResult<>(ResultCode.INVALID_CONFIG_ID);
-                    } else if (m2.find() || m4.find() || result.contains("Request imp[0].banner.format")) {
-                        return new AsyncTaskResult<>(ResultCode.INVALID_SIZE);
-                    } else {
-                        return new AsyncTaskResult<>(ResultCode.PREBID_SERVER_ERROR);
-                    }
-                }
+               // Start the connection
+               conn.connect();
 
-            } catch (MalformedURLException e) {
-                return new AsyncTaskResult<>(e);
-            } catch (UnsupportedEncodingException e) {
-                return new AsyncTaskResult<>(e);
-            } catch (SocketTimeoutException ex) {
-                return new AsyncTaskResult<>(ResultCode.TIMEOUT);
-            } catch (IOException e) {
-                return new AsyncTaskResult<>(e);
-            } catch (JSONException e) {
-                return new AsyncTaskResult<>(e);
-            } catch (NoContextException ex) {
-                return new AsyncTaskResult<>(ResultCode.INVALID_CONTEXT);
-            } catch (Exception e) {
-                return new AsyncTaskResult<>(e);
-            }
-            return new AsyncTaskResult<>(new RuntimeException("ServerConnector exception"));
-        }
 
-        @Override
+               // Read request response
+               int httpResult = conn.getResponseCode();
+               long demandFetchEndTime = System.currentTimeMillis();
+               if (httpResult == HttpURLConnection.HTTP_OK) {
+                   StringBuilder builder = new StringBuilder();
+                   InputStream is = conn.getInputStream();
+                   BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"));
+                   String line;
+                   while ((line = reader.readLine()) != null) {
+                       builder.append(line);
+                   }
+                   reader.close();
+                   is.close();
+                   String result = builder.toString();
+                   LogUtil.d("Got response for auction " + auctionId + " with: "+result);
+                   JSONObject response = new JSONObject(result);
+                   httpCookieSync(conn.getHeaderFields());
+                   // in the future, this can be improved to parse response base on request versions
+                   if (!PrebidMobile.timeoutMillisUpdated) {
+                       int tmaxRequest = -1;
+                       try {
+                           tmaxRequest = response.getJSONObject("ext").getInt("tmaxrequest");
+                       } catch (JSONException e) {
+                           // ignore this
+                       }
+                       if (tmaxRequest >= 0) {
+                           PrebidMobile.setTimeoutMillis(Math.min((int) (demandFetchEndTime - demandFetchStartTime) + tmaxRequest + 200, 2000)); // adding 200ms as safe time
+                           PrebidMobile.timeoutMillisUpdated = true;
+                       }
+                   }
+                   return new AsyncTaskResult<>(response);
+               } else if (httpResult == HttpURLConnection.HTTP_BAD_REQUEST) {
+                   StringBuilder builder = new StringBuilder();
+                   InputStream is = conn.getErrorStream();
+                   BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"));
+                   String line;
+                   while ((line = reader.readLine()) != null) {
+                       builder.append(line);
+                   }
+                   reader.close();
+                   is.close();
+                   String result = builder.toString();
+                   LogUtil.d("Getting response for auction " + getAuctionId() + ": " + result);
+                   Pattern storedRequestNotFound = Pattern.compile("^Invalid request: Stored Request with ID=\".*\" not found.");
+                   Pattern storedImpNotFound = Pattern.compile("^Invalid request: Stored Imp with ID=\".*\" not found.");
+                   Pattern invalidBannerSize = Pattern.compile("^Invalid request: Request imp\\[\\d\\].banner.format\\[\\d\\] must define non-zero \"h\" and \"w\" properties.");
+                   Pattern invalidInterstitialSize = Pattern.compile("Invalid request: Unable to set interstitial size list");
+                   Matcher m = storedRequestNotFound.matcher(result);
+                   Matcher m2 = invalidBannerSize.matcher(result);
+                   Matcher m3 = storedImpNotFound.matcher(result);
+                   Matcher m4 = invalidInterstitialSize.matcher(result);
+                   if (m.find() || result.contains("No stored request")) {
+                       return new AsyncTaskResult<>(ResultCode.INVALID_ACCOUNT_ID);
+                   } else if (m3.find() || result.contains("No stored imp")) {
+                       return new AsyncTaskResult<>(ResultCode.INVALID_CONFIG_ID);
+                   } else if (m2.find() || m4.find() || result.contains("Request imp[0].banner.format")) {
+                       return new AsyncTaskResult<>(ResultCode.INVALID_SIZE);
+                   } else {
+                       return new AsyncTaskResult<>(ResultCode.PREBID_SERVER_ERROR);
+                   }
+               }
+
+           } catch (MalformedURLException e) {
+               e.printStackTrace();
+               return new AsyncTaskResult<>(e);
+           } catch (UnsupportedEncodingException e) {
+               e.printStackTrace();
+               return new AsyncTaskResult<>(e);
+           } catch (SocketTimeoutException ex) {
+               ex.printStackTrace();
+               return new AsyncTaskResult<>(ResultCode.TIMEOUT);
+           } catch (IOException e) {
+               e.printStackTrace();
+               return new AsyncTaskResult<>(e);
+           } catch (JSONException e) {
+               e.printStackTrace();
+               return new AsyncTaskResult<>(e);
+           } catch (NoContextException ex) {
+               ex.printStackTrace();
+               return new AsyncTaskResult<>(ResultCode.INVALID_CONTEXT);
+           } catch (Exception e) {
+               e.printStackTrace();
+               return new AsyncTaskResult<>(e);
+           }
+           return new AsyncTaskResult<>(new RuntimeException("ServerConnector exception"));
+       }
+
+       @Override
         @MainThread
         protected void onPostExecute(AsyncTaskResult<JSONObject> asyncTaskResult) {
             super.onPostExecute(asyncTaskResult);

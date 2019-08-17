@@ -17,8 +17,8 @@
 package org.prebid.mobile;
 
 import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
-import com.mopub.mobileads.MoPubInterstitial;
-import com.mopub.mobileads.MoPubView;
+//import com.mopub.mobileads.MoPubInterstitial;
+//import com.mopub.mobileads.MoPubView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +54,7 @@ public class UtilTest extends BaseSetup {
         assertEquals("test", result);
     }
 
+    /*
     @Test
     public void testGetClassFromString() throws Exception {
         assertEquals(MoPubView.class, Util.getClassFromString(Util.MOPUB_BANNER_VIEW_CLASS));
@@ -80,6 +81,7 @@ public class UtilTest extends BaseSetup {
         Util.apply(null, instl);
         assertEquals("key1:value1,key2:value2", instl.getKeywords());
     }
+    */
 
     @Test
     public void testApplyBidsToDFOAdObject() throws Exception {
@@ -103,6 +105,7 @@ public class UtilTest extends BaseSetup {
         assertEquals("Value", request.getCustomTargeting().get("Key"));
     }
 
+    /*
     @Test
     public void testSupportedAdObject() throws Exception {
         MoPubView testView = new MoPubView(activity);
@@ -115,6 +118,7 @@ public class UtilTest extends BaseSetup {
         Object object = new Object();
         assertFalse(Util.supportedAdObject(object));
     }
+    */
 
     @Test
     public void testGetObjectWithoutEmptyValues() throws JSONException {
