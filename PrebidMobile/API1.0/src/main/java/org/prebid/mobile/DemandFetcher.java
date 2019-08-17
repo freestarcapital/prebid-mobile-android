@@ -18,9 +18,10 @@ package org.prebid.mobile;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import org.prebid.fs.mobile.OnCompleteListener;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;
@@ -139,9 +140,8 @@ public class DemandFetcher {
         }
     }
 
-    // bks private
     @MainThread
-    public void notifyListener(final ResultCode resultCode) {
+    private void notifyListener(final ResultCode resultCode) {
         System.out.println("***BKS*** NLrc "+resultCode);
         LogUtil.d("notifyListener:" + resultCode);
 

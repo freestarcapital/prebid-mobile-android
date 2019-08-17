@@ -16,7 +16,7 @@
 
 package org.prebid.fs.mobile;
 
-import android.support.annotation.MainThread;
+import androidx.annotation.MainThread;
 
 import org.prebid.mobile.ResultCode;
 

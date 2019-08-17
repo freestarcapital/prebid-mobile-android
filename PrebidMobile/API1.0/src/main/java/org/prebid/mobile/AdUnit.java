@@ -20,9 +20,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 
 import org.prebid.fs.mobile.OnCompleteListener;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;

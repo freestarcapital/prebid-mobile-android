@@ -16,7 +16,7 @@
 
 package org.prebid.mobile;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.prebid.fs.mobile.network.AdNetwork;
 
