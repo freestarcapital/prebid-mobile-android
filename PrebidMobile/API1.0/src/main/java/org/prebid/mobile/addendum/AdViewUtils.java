@@ -187,10 +187,7 @@ public final class AdViewUtils {
 
         String hbSizeObject = findHbSizeObject(html);
         if (hbSizeObject == null) {
-            Pair<Integer, Integer> size = stringToSize("320x100");
-            return new Pair<>(size, null);
-
-//            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_OBJECTx);
+            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_OBJECT);
         }
 
         String hbSizeValue = findHbSizeValue(hbSizeObject);
