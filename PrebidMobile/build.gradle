@@ -1,4 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 ext {
     prebidVersionName = "FS-1.2.3"
     prebidVersionCode = 1
@@ -12,13 +13,11 @@ buildscript {
     repositories {
         jcenter()
         google()
-//        mavenLocal()
+        mavenLocal()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -30,7 +29,11 @@ allprojects {
         jcenter() // includes the MoPub SDK and AVID library
         maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
         maven { url 'https://maven.google.com' } // necessary for Android API 26
-//        mavenLocal()
+        mavenLocal()
     }
 
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
