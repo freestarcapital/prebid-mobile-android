@@ -6,7 +6,9 @@ public class AppNexus extends AdNetwork {
 
     public AppNexus() {
         super(NAME,
-        new Value[] {new LongValue(KEY_PLACEMENT_ID)});
+        new Value[] {
+                new LongValue(KEY_PLACEMENT_ID),
+                     });
     }
 
     public void setPlacementId(Long id) {

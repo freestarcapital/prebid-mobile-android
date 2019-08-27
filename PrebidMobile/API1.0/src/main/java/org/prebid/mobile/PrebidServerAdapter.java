@@ -17,15 +17,9 @@
 package org.prebid.mobile;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.CountDownTimer;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -35,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;
@@ -126,19 +121,24 @@ public class PrebidServerAdapter implements DemandAdapter {
         @Override
         @WorkerThread
         public AsyncTaskResult<JSONObject> doInBackground(Object... objects) {
-           return doBks(objects);
-         }
-
-       public AsyncTaskResult<JSONObject> doBks(Object... objects) {
            try {
                long demandFetchStartTime = System.currentTimeMillis();
                URL url = new URL(getHost());
-               LogUtil.d("BKSBKS HOST: "+url);
+               LogUtil.d("PrebidServerAdapter.doInBackground HOST: "+url);
                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                conn.setDoOutput(true);
                conn.setDoInput(true);
                conn.setRequestProperty("Content-Type", "application/json");
                conn.setRequestProperty("Accept", "application/json");
+               conn.setRequestProperty("Origin", "*");
+               conn.setRequestProperty("Access-Control-Allow-Headers", "Content-Type");
+               conn.setRequestProperty("Access-Control-Allow-Methods", "POST");
+
+               //.putHeader(HttpUtil.ACCESS_CONTROL_ALLOW_HEADERS, CONTENT_TYPE)
+//.putHeader(HttpUtil.ACCESS_CONTROL_ALLOW_METHODS, GET_POST)
+
+
+
                String existingCookie = getExistingCookie();
                if (existingCookie != null) {
                    conn.setRequestProperty(PrebidServerSettings.COOKIE_HEADER, existingCookie);
@@ -160,6 +160,7 @@ public class PrebidServerAdapter implements DemandAdapter {
 
                // Read request response
                int httpResult = conn.getResponseCode();
+               LogUtil.d("PrebidServerAdapter.doInBackground headers:: "+conn.getHeaderFields());
                long demandFetchEndTime = System.currentTimeMillis();
                if (httpResult == HttpURLConnection.HTTP_OK) {
                    StringBuilder builder = new StringBuilder();
@@ -174,6 +175,7 @@ public class PrebidServerAdapter implements DemandAdapter {
                    String result = builder.toString();
                    LogUtil.d("Got response for auction " + auctionId + " with: "+result);
                    JSONObject response = new JSONObject(result);
+
                    httpCookieSync(conn.getHeaderFields());
                    // in the future, this can be improved to parse response base on request versions
                    if (!PrebidMobile.timeoutMillisUpdated) {

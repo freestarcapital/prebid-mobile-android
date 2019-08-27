@@ -50,11 +50,9 @@ public class DemandFetcher {
 
     public DemandFetcher(AdUnit adUnit, @NonNull Object adObj) {
         this(adUnit, AdapterHandlerType.PREBID_MODE, adObj);
-//        System.out.println("***BKS*** DF1");
     }
 
     public DemandFetcher(AdUnit adUnit, @NonNull AdapterHandlerType type, @NonNull Object adObj) {
-//        System.out.println("***BKS*** DF2");
         this.state = STATE.STOPPED;
         this.adUnit = adUnit;
         this.periodMillis = 0;
@@ -66,18 +64,18 @@ public class DemandFetcher {
     }
 
    public void setListener(OnCompleteListener listener) {
-//        System.out.println("***BKS*** SL "+listener.getClass().getName());
+       LogUtil.d("DemandFetcher.setListener "+listener.getClass().getName());
         this.listener = listener;
     }
 
    public void setRequestParams(RequestParams requestParams) {
-//        System.out.println("***BKS*** RP "+requestParams);
+       LogUtil.d("DemandFetcher.setRequestParams "+requestParams);
         this.requestParams = requestParams;
     }
 
 
    public void setPeriodMillis(int periodMillis) {
-//        System.out.println("***BKS*** Period "+periodMillis);
+       LogUtil.d("DemandFecter.setPeriodMillis "+periodMillis);
         boolean periodChanged = this.periodMillis != periodMillis;
         this.periodMillis = periodMillis;
         if ((periodChanged) && !state.equals(STATE.STOPPED)) {
@@ -87,7 +85,7 @@ public class DemandFetcher {
     }
 
     private void stop() {
-//        System.out.println("***BKS*** stop");
+        LogUtil.d("DemandFetcher.stop");
         this.requestRunnable.cancelRequest();
         this.fetcherHandler.removeCallbacks(requestRunnable);
         // cancel existing requests
@@ -96,7 +94,7 @@ public class DemandFetcher {
     }
 
    public void start() {
-//        System.out.println("***BKS*** start "+state);
+       LogUtil.d("DemandFetcher.start "+state);
         switch (state) {
             case STOPPED:
                 if (this.periodMillis <= 0) {
@@ -129,7 +127,7 @@ public class DemandFetcher {
     }
 
    public void destroy() {
-        System.out.println("***BKS*** destroy "+state);
+       LogUtil.d("DemandFetcher.destroy "+state);
         if (state != STATE.DESTROYED) {
             this.adObject = null;
             this.listener = null;
@@ -142,7 +140,6 @@ public class DemandFetcher {
 
     @MainThread
     private void notifyListener(final ResultCode resultCode) {
-        System.out.println("***BKS*** NLrc "+resultCode);
         LogUtil.d("notifyListener:" + resultCode);
 
         if (listener != null) {
@@ -167,18 +164,18 @@ public class DemandFetcher {
             this.demandHandler = new Handler(demandThread.getLooper());
             this.demandAdapter = new PrebidServerAdapter(type);
             auctionId = UUID.randomUUID().toString();
-            System.out.println("***BKS*** RR--"+type+" ** "+auctionId+"  **  "+adUnit);
+           LogUtil.d("DemandFetcher:RequestRunnable() "+type+" ** "+auctionId+"  **  "+adUnit);
         }
 
        public void cancelRequest() {
-            System.out.println("***BKS*** RR-CR");
+           LogUtil.d("DemandFetcher:RequestRunnable.cancelRequest");
             this.demandAdapter.stopRequest(auctionId);
         }
 
         @Override
         public void run() {
             // reset state
-            System.out.print("***BKS*** RR-R ************************** "+auctionId);
+            LogUtil.d("DemandFetcher:run auction id: "+auctionId);
             auctionId = UUID.randomUUID().toString();
             if (adUnit != null) {
                 adUnit.setAuctionId(auctionId);
@@ -194,6 +191,8 @@ public class DemandFetcher {
                         @MainThread
                         public void onDemandReady(final HashMap<String, String> demand, String auctionId) {
                             if (RequestRunnable.this.auctionId.equals(auctionId)) {
+                                demand.put("fs_app", "true");
+                                demand.put("test", "universalsafeframetrue");
                                 Util.apply(demand, DemandFetcher.this.adObject);
                                 LogUtil.i("Successfully set the following keywords: " + demand.toString());
                                 notifyListener(ResultCode.SUCCESS);

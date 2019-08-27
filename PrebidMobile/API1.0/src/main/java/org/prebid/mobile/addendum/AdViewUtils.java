@@ -69,6 +69,7 @@ public final class AdViewUtils {
 
         handler.success(width, height);
 
+        /*
         //a fix of strange bug on Android with image scaling up
         webView.post(new Runnable() {
             @Override
@@ -76,6 +77,7 @@ public final class AdViewUtils {
                 webView.getSettings().setLoadWithOverviewMode(true);
             }
         });
+        */
     }
 
     static void warnAndTriggerFailure(Set<Pair<WebView, PbFindSizeError>> webViewErrorSet, PbFindSizeListener handler) {
@@ -134,6 +136,7 @@ public final class AdViewUtils {
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     static void iterateWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final int index, final PbFindSizeListener handler) {
+        LogUtil.d("AdViewUtils.iterateWebViewListAsync-index: "+index+"::"+webViewList.size()+"::"+webViewList);
 
         final WebView webView = webViewList.get(index);
 
@@ -174,15 +177,20 @@ public final class AdViewUtils {
     }
 
     @NonNull
-    static Pair<Pair<Integer, Integer>, PbFindSizeError> findSizeInHtml(@Nullable String html) {
-
+    public static Pair<Pair<Integer, Integer>, PbFindSizeError> findSizeInHtml(@Nullable String html) {
+        LogUtil.d("-------------html------------");
+        LogUtil.d(html);
+        LogUtil.d("-------------html------------");
         if (TextUtils.isEmpty(html)) {
             return new Pair<>(null, PbFindSizeErrorFactory.NO_HTML);
         }
 
         String hbSizeObject = findHbSizeObject(html);
         if (hbSizeObject == null) {
-            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_OBJECT);
+            Pair<Integer, Integer> size = stringToSize("320x100");
+            return new Pair<>(size, null);
+
+//            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_OBJECTx);
         }
 
         String hbSizeValue = findHbSizeValue(hbSizeObject);

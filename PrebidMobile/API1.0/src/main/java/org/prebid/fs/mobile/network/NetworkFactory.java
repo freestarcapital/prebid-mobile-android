@@ -13,6 +13,8 @@ public final class NetworkFactory {
             return new Rubicon();
         } else if (OftMedia.NAME.equals(name)) {
             return new OftMedia();
+        } else if (Synacor.NAME.equals(name)) {
+            return new Synacor();
         } else {
             return null;
         }
