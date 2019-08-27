@@ -51,8 +51,7 @@ dependencies {
 }
 
 group = 'com.freestar.org.prebid'
-version = 'FS-1.2.3'
-//version = 'FS-1.2.4-SNAPSHOT'
+version = 'FS-1.2.4-SNAPSHOT'
 
 def Properties properties = new Properties()
 properties.load(project.rootProject.file("local.properties").newDataInputStream())
