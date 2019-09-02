@@ -18,14 +18,18 @@ package org.prebid.mobile;
 
 import android.content.Context;
 
+import org.prebid.fs.mobile.domain.CustomTargetingEntry;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrebidMobile {
 
     private static final int TIMEOUT_MILLIS = 2_000;
-
     private static int timeoutMillis = TIMEOUT_MILLIS; // by default use 2000 milliseconds as timeout
     public static boolean timeoutMillisUpdated = false;
+    private static List<CustomTargetingEntry> injectableDemandKeywords = new ArrayList<>();
 
     public static int getTimeoutMillis() {
         return timeoutMillis;
@@ -69,6 +73,26 @@ public class PrebidMobile {
     public static boolean isShareGeoLocation() {
         return shareGeoLocation;
     }
+
+    public static List<CustomTargetingEntry> getInjectableDemandKeywords() {
+        return injectableDemandKeywords;
+    }
+
+    /**
+     * Add a keyword associated with demand
+     */
+    public static void addInjectableDemandKeyword(String key, String value) {
+        addInjectableDemandKeyword(new CustomTargetingEntry(key, value));
+    }
+
+    /**
+     * Add a keyword associated with demand
+     */
+    public static synchronized void addInjectableDemandKeyword(CustomTargetingEntry entry) {
+        injectableDemandKeywords.add(entry);
+    }
+
+
 
     private static WeakReference<Context> applicationContextWeak;
 
