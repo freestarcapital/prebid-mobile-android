@@ -125,7 +125,7 @@ public class ResultCodeTest extends BaseSetup {
             Robolectric.flushForegroundThreadScheduler();
             verify(mockListener).onComplete(ResultCode.SUCCESS);
             Bundle bundle = testRequest.getCustomTargeting();
-            assertEquals(12, bundle.size());
+            assertEquals(10, bundle.size());
             assertTrue(bundle.containsKey("hb_pb"));
             assertEquals("0.50", bundle.get("hb_pb"));
             assertTrue(bundle.containsKey("hb_bidder"));
@@ -180,7 +180,7 @@ public class ResultCodeTest extends BaseSetup {
         verify(mockListener).onComplete(ResultCode.SUCCESS);
 
         Bundle bundle = testRequest.getCustomTargeting();
-        assertEquals(18, bundle.size());
+        assertEquals(16, bundle.size());
         String hb_pb = "hb_pb";
         assertTrue(bundle.containsKey(hb_pb));
         assertEquals("1.20", bundle.get(hb_pb));

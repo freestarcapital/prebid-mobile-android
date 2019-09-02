@@ -199,6 +199,10 @@ public abstract class AdUnit {
         keywords.clear();
     }
 
+    public String getConfigId() {
+        return configId;
+    }
+
     public void setAuctionId(String auctionId) {
         this.auctionId = auctionId;
     }

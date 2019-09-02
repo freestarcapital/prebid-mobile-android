@@ -191,7 +191,7 @@ public class DemandFetcherTest extends BaseSetup {
             verify(mockListener).onComplete(ResultCode.SUCCESS);
             assertEquals(DemandFetcher.STATE.DESTROYED, FieldUtils.readField(demandFetcher, "state", true));
             Bundle bundle = request.getCustomTargeting();
-            assertEquals(12, bundle.size());
+            assertEquals(10, bundle.size());
             assertTrue(bundle.containsKey("hb_pb"));
             assertEquals("0.50", bundle.get("hb_pb"));
             assertTrue(bundle.containsKey("hb_bidder"));
@@ -253,7 +253,7 @@ public class DemandFetcherTest extends BaseSetup {
         assertEquals(DemandFetcher.STATE.DESTROYED, FieldUtils.readField(demandFetcher, "state", true));
 
         Bundle bundle = request.getCustomTargeting();
-        Assert.assertEquals(18, bundle.size());
+        Assert.assertEquals(16, bundle.size());
         String hb_pb = "hb_pb";
         Assert.assertTrue(bundle.containsKey(hb_pb));
         Assert.assertEquals("1.20", bundle.get(hb_pb));
@@ -463,7 +463,7 @@ public class DemandFetcherTest extends BaseSetup {
             verify(mockListener).onComplete(ResultCode.SUCCESS);
             assertEquals(DemandFetcher.STATE.RUNNING, FieldUtils.readField(demandFetcher, "state", true));
             Bundle bundle = request.getCustomTargeting();
-            assertEquals(12, bundle.size());
+            assertEquals(10, bundle.size());
             assertTrue(bundle.containsKey("hb_pb"));
             assertEquals("0.50", bundle.get("hb_pb"));
             assertTrue(bundle.containsKey("hb_bidder"));
