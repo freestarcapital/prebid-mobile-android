@@ -51,13 +51,12 @@ dependencies {
 }
 
 group = 'com.freestar.org.prebid'
-version = 'FS-1.2.4-SNAPSHOT'
 
 def Properties properties = new Properties()
 properties.load(project.rootProject.file("local.properties").newDataInputStream())
+version = properties.getProperty('version','')
 def a_username = properties.getProperty('artifactory_username', '')
 def a_password = properties.getProperty('artifactory_password', '')
-
 
 uploadArchives {
     repositories {

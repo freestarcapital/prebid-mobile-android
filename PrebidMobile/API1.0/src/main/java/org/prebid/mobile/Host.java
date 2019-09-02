@@ -28,6 +28,16 @@ public enum Host {
      */
     RUBICON("https://prebid-server.rubiconproject.com/openrtb2/auction"),
 
+    /**
+     * URL <a href=https://prebid.pub.network/openrtb2/auction>https://prebid.pub.network/openrtb2/auction</a>
+     */
+    FREESTAR("https://prebid.pub.network/openrtb2/auction"),
+
+    /**
+     * URL <a href=https://dev-prebid.pub.network/openrtb2/auction>https://dev-prebid.pub.network/openrtb2/auction</a>
+     */
+    FREESTAR_DEV("https://dev-prebid.pub.network/openrtb2/auction"),
+
     CUSTOM("");
 
     private String url;

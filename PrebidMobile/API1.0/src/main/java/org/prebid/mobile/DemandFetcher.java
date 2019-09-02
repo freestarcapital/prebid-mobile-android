@@ -25,8 +25,10 @@ import androidx.annotation.VisibleForTesting;
 
 import org.prebid.fs.mobile.OnCompleteListener;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;
+import org.prebid.fs.mobile.domain.CustomTargetingEntry;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class DemandFetcher {
@@ -191,8 +193,13 @@ public class DemandFetcher {
                         @MainThread
                         public void onDemandReady(final HashMap<String, String> demand, String auctionId) {
                             if (RequestRunnable.this.auctionId.equals(auctionId)) {
-                                demand.put("fs_app", "true");
-                                demand.put("test", "universalsafeframetrue");
+                                List<CustomTargetingEntry> kwList = PrebidMobile.getInjectableDemandKeywords();
+                                for (CustomTargetingEntry kw : kwList) {
+                                    demand.put(kw.getKey(), kw.getValue());
+                                    demand.put("fs_app", "true");
+                                    demand.put("test", "universalsafeframetrue");
+
+                                }
                                 Util.apply(demand, DemandFetcher.this.adObject);
                                 LogUtil.i("Successfully set the following keywords: " + demand.toString());
                                 notifyListener(ResultCode.SUCCESS);
