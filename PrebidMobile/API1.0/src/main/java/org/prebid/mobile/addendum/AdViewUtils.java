@@ -28,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
 
+import com.google.android.gms.ads.AdSize;
+
 import org.prebid.mobile.LogUtil;
 
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public final class AdViewUtils {
     private AdViewUtils() { }
 
     @SuppressWarnings("deprecation")
-    public static void findPrebidCreativeSize(@Nullable View adView, final PbFindSizeListener handler) {
+    public static void findPrebidCreativeSize(final List<AdSize> sizes, @Nullable View adView, final PbFindSizeListener handler) {
 
         if (adView == null) {
             warnAndTriggerFailure(PbFindSizeErrorFactory.NO_WEB_VIEW, handler);
@@ -60,7 +62,7 @@ public final class AdViewUtils {
             return;
         }
 
-        findSizeInWebViewListAsync(webViewList, handler);
+        findSizeInWebViewListAsync(sizes, webViewList, handler);
     }
 
     static void triggerSuccess(final WebView webView, Pair<Integer, Integer> adSize, PbFindSizeListener handler) {
@@ -88,7 +90,7 @@ public final class AdViewUtils {
     static void warnAndTriggerFailure(PbFindSizeError error, PbFindSizeListener handler) {
 
         String description = error.getDescription();
-        LogUtil.w(description);
+        LogUtil.wFS(description);
 
         handler.failure(error);
     }
@@ -111,16 +113,19 @@ public final class AdViewUtils {
         }
     }
 
-    static void findSizeInWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final PbFindSizeListener handler) {
+    static void findSizeInWebViewListAsync(
+            @Size(min = 1) List<AdSize> sizes,
+            @Size(min = 1) final List<WebView> webViewList,
+            final PbFindSizeListener handler) {
 
         int currentAndroidApi = Build.VERSION.SDK_INT;
         int necessaryAndroidApi = Build.VERSION_CODES.KITKAT;
 
         if (currentAndroidApi >= necessaryAndroidApi) {
-            LogUtil.d("webViewList size:" + webViewList.size());
+            LogUtil.dFS("webViewList size:" + webViewList.size());
 
             int lastIndex = webViewList.size() - 1;
-            iterateWebViewListAsync(webViewList, lastIndex, handler);
+            iterateWebViewListAsync(sizes, webViewList, lastIndex, handler);
 
 
         } else {
@@ -135,8 +140,8 @@ public final class AdViewUtils {
      * and {@link PbFindSizeListener#failure(PbFindSizeError)} when size is not found inside passed WebView list
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    static void iterateWebViewListAsync(@Size(min = 1) final List<WebView> webViewList, final int index, final PbFindSizeListener handler) {
-        LogUtil.d("AdViewUtils.iterateWebViewListAsync-index: "+index+"::"+webViewList.size()+"::"+webViewList);
+    static void iterateWebViewListAsync(@Size(min = 1) final List<AdSize> sizes, @Size(min = 1) final List<WebView> webViewList, final int index, final PbFindSizeListener handler) {
+        LogUtil.dFS("AdViewUtils.iterateWebViewListAsync-index: "+index+"::"+webViewList.size()+"::"+webViewList);
 
         final WebView webView = webViewList.get(index);
 
@@ -151,7 +156,7 @@ public final class AdViewUtils {
                 int nextIndex = index - 1;
 
                 if (nextIndex >= 0) {
-                    iterateWebViewListAsync(webViewList, nextIndex, handler);
+                    iterateWebViewListAsync(sizes, webViewList, nextIndex, handler);
                 } else {
                     warnAndTriggerFailure(errorSet, handler);
                 }
@@ -160,7 +165,7 @@ public final class AdViewUtils {
             @Override
             public void onReceiveValue(@Nullable String html) {
 
-                Pair<Pair<Integer, Integer>, PbFindSizeError> pair = findSizeInHtml(html);
+                Pair<Pair<Integer, Integer>, PbFindSizeError> pair = findSizeInHtml(sizes, html);
 
                 @Nullable
                 Pair<Integer, Integer> size = pair.first;
@@ -177,27 +182,31 @@ public final class AdViewUtils {
     }
 
     @NonNull
-    public static Pair<Pair<Integer, Integer>, PbFindSizeError> findSizeInHtml(@Nullable String html) {
-        LogUtil.d("-------------html------------");
-        LogUtil.d(html);
-        LogUtil.d("-------------html------------");
+    public static Pair<Pair<Integer, Integer>, PbFindSizeError> findSizeInHtml(@Size(min = 1) List<AdSize> sizes, @Nullable String html) {
+        LogUtil.dFS("AdViewUtils.findSizeInHtml");
+        LogUtil.dFS("-------------html------------");
+        LogUtil.dFS(html);
+        LogUtil.dFS("-------------html------------");
         if (TextUtils.isEmpty(html)) {
             return new Pair<>(null, PbFindSizeErrorFactory.NO_HTML);
         }
 
         String hbSizeObject = findHbSizeObject(html);
         if (hbSizeObject == null) {
-            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_OBJECT);
+            AdSize ss = sizes.get(0);
+            return new Pair<>(new Pair<>(ss.getWidth(), ss.getHeight()), null);
         }
 
         String hbSizeValue = findHbSizeValue(hbSizeObject);
         if (hbSizeValue == null) {
-            return new Pair<>(null, PbFindSizeErrorFactory.NO_SIZE_VALUE);
+            AdSize ss = sizes.get(0);
+            return new Pair<>(new Pair<>(ss.getWidth(), ss.getHeight()), null);
         }
 
         Pair<Integer, Integer> size = stringToSize(hbSizeValue);
         if (size == null) {
-            return new Pair<>(null, PbFindSizeErrorFactory.SIZE_UNPARSED);
+            AdSize ss = sizes.get(0);
+            return new Pair<>(new Pair<>(ss.getWidth(), ss.getHeight()), null);
         } else {
             return new Pair<>(size, null);
         }

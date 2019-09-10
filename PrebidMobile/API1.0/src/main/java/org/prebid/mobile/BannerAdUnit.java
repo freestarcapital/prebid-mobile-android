@@ -24,8 +24,8 @@ public class BannerAdUnit extends AdUnit {
     private HashSet<AdSize> sizes;
 
 
-    public BannerAdUnit(@NonNull String configId, int width, int height) {
-        super(configId, AdType.BANNER);
+    public BannerAdUnit(@NonNull String configId, String pChain, int width, int height) {
+        super(configId, AdType.BANNER, pChain);
         this.sizes = new HashSet<>();
         this.sizes.add(new AdSize(width, height));
     }

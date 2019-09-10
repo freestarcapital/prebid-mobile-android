@@ -20,6 +20,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class LogUtil {
+    private static boolean fsActive = false;
+
     //region Private Constructor
     private LogUtil() {
     }
@@ -159,4 +161,87 @@ public class LogUtil {
         Log.e(BASE_TAG, message, cause);
     }
     //endregion
+
+    public static void dFS(String message) {
+        if (fsActive) {
+            d(message);
+        }
+    }
+
+    public static void dFS(final String tag, String message) {
+        if (fsActive) {
+            d(tag, message);
+        }
+    }
+
+    public static void dFS(final String tag, String message, Throwable cause) {
+        if (fsActive) {
+            d(tag, message, cause);
+        }
+    }
+    //endregion
+
+    //region Info Log
+
+    public static void iFS(String message) {
+        if (fsActive) {
+            i(message);
+        }
+    }
+
+    public static void iFS(final String tag, String message) {
+        if (fsActive) {
+            i(tag, message);
+        }
+    }
+
+    public static void iFS(final String tag, String message, Throwable cause) {
+        if (fsActive) {
+            i(tag, message, cause);
+        }
+    }
+    //endregion
+
+    //region Warning Log
+
+    public static void wFS(String message) {
+        if (fsActive) {
+            w(message);
+        }
+    }
+
+    public static void wFS(final String tag, String message) {
+        if (fsActive) {
+            w(tag, message);
+        }
+    }
+
+    public static void wFS(final String tag, String message, Throwable cause) {
+        if (fsActive) {
+            w(tag, message, cause);
+        }
+    }
+
+
+    public static void eFS(String message) {
+        if (fsActive) {
+            e(message);
+        }
+    }
+
+    public static void eFS(final String tag, String message) {
+        if (fsActive) {
+            e(tag, message);
+        }
+    }
+
+    public static void eFS(final String tag, String message, Throwable cause) {
+        if (fsActive) {
+            e(tag, message, cause);
+        }
+    }
+
+    public static void setFsActive(boolean state) {
+        fsActive = state;
+    }
 }

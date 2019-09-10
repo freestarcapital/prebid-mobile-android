@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.prebid.fs.mobile.adapter.AdapterHandlerType;
@@ -66,7 +65,7 @@ public class PrebidServerAdapter implements DemandAdapter {
         } else {
             adapterHandler = new StoredImplementationHandler();
         }
-        LogUtil.d("HOST: "+ PrebidMobile.getPrebidServerHost().getHostUrl()+"  TYPE: "+type);
+        LogUtil.dFS("HOST: "+ PrebidMobile.getPrebidServerHost().getHostUrl()+"  TYPE: "+type);
     }
 
     @Override
@@ -124,7 +123,7 @@ public class PrebidServerAdapter implements DemandAdapter {
            try {
                long demandFetchStartTime = System.currentTimeMillis();
                URL url = new URL(getHost());
-               LogUtil.d("PrebidServerAdapter.doInBackground HOST: "+url);
+               LogUtil.dFS("PrebidServerAdapter.doInBackground HOST: "+url);
                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                conn.setDoOutput(true);
                conn.setDoInput(true);
@@ -150,7 +149,7 @@ public class PrebidServerAdapter implements DemandAdapter {
                // Add post data
                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
                JSONObject postData = getPostData();
-               LogUtil.d("Sending request for auction " + auctionId + " with post data: " + postData.toString());
+               LogUtil.dFS("Sending request for auction " + auctionId + " with post data: " + postData.toString());
                wr.write(postData.toString());
                wr.flush();
 
@@ -160,7 +159,7 @@ public class PrebidServerAdapter implements DemandAdapter {
 
                // Read request response
                int httpResult = conn.getResponseCode();
-               LogUtil.d("PrebidServerAdapter.doInBackground headers:: "+conn.getHeaderFields());
+               LogUtil.dFS("PrebidServerAdapter.doInBackground headers:: "+conn.getHeaderFields());
                long demandFetchEndTime = System.currentTimeMillis();
                if (httpResult == HttpURLConnection.HTTP_OK) {
                    StringBuilder builder = new StringBuilder();
@@ -173,7 +172,7 @@ public class PrebidServerAdapter implements DemandAdapter {
                    reader.close();
                    is.close();
                    String result = builder.toString();
-                   LogUtil.d("Got response for auction " + auctionId + " with: "+result);
+                   LogUtil.dFS("Got response for auction " + auctionId + " with: "+result);
                    JSONObject response = new JSONObject(result);
 
                    httpCookieSync(conn.getHeaderFields());
@@ -202,7 +201,7 @@ public class PrebidServerAdapter implements DemandAdapter {
                    reader.close();
                    is.close();
                    String result = builder.toString();
-                   LogUtil.d("Getting response for auction " + getAuctionId() + ": " + result);
+                   LogUtil.dFS("Getting response for auction " + getAuctionId() + ": " + result);
                    Pattern storedRequestNotFound = Pattern.compile("^Invalid request: Stored Request with ID=\".*\" not found.");
                    Pattern storedImpNotFound = Pattern.compile("^Invalid request: Stored Imp with ID=\".*\" not found.");
                    Pattern invalidBannerSize = Pattern.compile("^Invalid request: Request imp\\[\\d\\].banner.format\\[\\d\\] must define non-zero \"h\" and \"w\" properties.");
@@ -339,7 +338,7 @@ public class PrebidServerAdapter implements DemandAdapter {
             if (headers == null || headers.isEmpty()) return;
             CookieManager cm = CookieManager.getInstance();
             if (cm == null) {
-                LogUtil.i("PrebidNewAPI", "Unable to find a CookieManager");
+                LogUtil.iFS("PrebidNewAPI", "Unable to find a CookieManager");
                 return;
             }
             try {
@@ -360,7 +359,7 @@ public class PrebidServerAdapter implements DemandAdapter {
                                         CookieSyncManager.createInstance(PrebidMobile.getApplicationContext());
                                         CookieSyncManager csm = CookieSyncManager.getInstance();
                                         if (csm == null) {
-                                            LogUtil.i("Unable to find a CookieSyncManager");
+                                            LogUtil.iFS("Unable to find a CookieSyncManager");
                                             return;
                                         }
                                         csm.sync();

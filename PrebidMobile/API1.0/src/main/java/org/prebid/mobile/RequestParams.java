@@ -34,17 +34,19 @@ public class RequestParams {
     private List<String> appCats;
     @Nullable
     private AdSize minSizePerc; //non null only for InterstitialAdUnit(String, int, int)
+    private String pchain;
 
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks) {
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks, String pchain) {
         this.configId = configId;
         this.adType = adType;
         this.sizes = sizes; // for Interstitial this will be null, will use screen width & height in the request
         this.keywords = keywords;
         this.networks = networks;
+        this.pchain = pchain;
     }
 
-    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks, @Nullable AdSize minSizePerc) {
-        this(configId, adType, sizes, keywords, networks);
+    RequestParams(String configId, AdType adType, HashSet<AdSize> sizes, ArrayList<String> keywords, List<AdNetwork> networks, @Nullable String pchain, @Nullable AdSize minSizePerc) {
+        this(configId, adType, sizes, keywords, networks, pchain);
         this.minSizePerc = minSizePerc;
     }
 
@@ -78,4 +80,10 @@ public class RequestParams {
     AdSize getMinSizePerc() {
         return minSizePerc;
     }
+
+    @Nullable
+    public String getPchain() {
+        return pchain;
+    }
+
 }

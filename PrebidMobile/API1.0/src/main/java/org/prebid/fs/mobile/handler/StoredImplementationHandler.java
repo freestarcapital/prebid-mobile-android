@@ -375,7 +375,7 @@ public class StoredImplementationHandler extends PrebidAdapterHandler {
         HashMap<String, String> keywords = new HashMap<>();
         boolean containTopBid = false;
         if (result != null) {
-            LogUtil.d("Getting response for auction " + auctionId + ": " + result.toString());
+            LogUtil.dFS("Getting response for auction " + auctionId + ": " + result.toString());
             try {
                 JSONArray seatbid = result.getJSONArray("seatbid");
                 if (seatbid != null) {

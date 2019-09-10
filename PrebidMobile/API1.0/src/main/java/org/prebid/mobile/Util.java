@@ -18,14 +18,10 @@ package org.prebid.mobile;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import org.prebid.mobile.addendum.AdViewUtils;
-import org.prebid.mobile.addendum.PbFindSizeError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,28 +51,6 @@ public class Util {
     }
 
     private Util() {
-
-    }
-
-    /**
-     *@deprecated Please migrate to - AdViewUtils.findPrebidCreativeSize(View, AdViewUtils.PbFindSizeListener)
-     *@see AdViewUtils#findPrebidCreativeSize(View, AdViewUtils.PbFindSizeListener)
-     */
-    @Deprecated
-    public static void findPrebidCreativeSize(@Nullable View adView, final CreativeSizeCompletionHandler completionHandler) {
-        AdViewUtils.findPrebidCreativeSize(adView, new AdViewUtils.PbFindSizeListener() {
-            @Override
-            public void success(int width, int height) {
-                completionHandler.onSize(new CreativeSize(width, height));
-
-            }
-
-            @Override
-            public void failure(@NonNull PbFindSizeError error) {
-                LogUtil.w("Missing failure handler, please migrate to - Util.findPrebidCreativeSize(View, CreativeSizeResultHandler)");
-                completionHandler.onSize(null); // backwards compatibility
-            }
-        });
 
     }
 

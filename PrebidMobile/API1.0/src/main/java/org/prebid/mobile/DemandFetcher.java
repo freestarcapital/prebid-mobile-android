@@ -33,7 +33,9 @@ import java.util.UUID;
 
 public class DemandFetcher {
 
-   public enum STATE {
+    private static boolean skipPrebidDemand;
+
+    public enum STATE {
         STOPPED,
         RUNNING,
         DESTROYED
@@ -65,19 +67,23 @@ public class DemandFetcher {
         this.requestRunnable = new RequestRunnable(type);
     }
 
+    public static void deactivatePrebidDemand() {
+        skipPrebidDemand = true;
+    }
+
    public void setListener(OnCompleteListener listener) {
-       LogUtil.d("DemandFetcher.setListener "+listener.getClass().getName());
+       LogUtil.dFS("DemandFetcher.setListener "+listener.getClass().getName());
         this.listener = listener;
     }
 
    public void setRequestParams(RequestParams requestParams) {
-       LogUtil.d("DemandFetcher.setRequestParams "+requestParams);
+       LogUtil.dFS("DemandFetcher.setRequestParams "+requestParams);
         this.requestParams = requestParams;
     }
 
 
    public void setPeriodMillis(int periodMillis) {
-       LogUtil.d("DemandFecter.setPeriodMillis "+periodMillis);
+       LogUtil.dFS("DemandFecter.setPeriodMillis "+periodMillis);
         boolean periodChanged = this.periodMillis != periodMillis;
         this.periodMillis = periodMillis;
         if ((periodChanged) && !state.equals(STATE.STOPPED)) {
@@ -87,7 +93,7 @@ public class DemandFetcher {
     }
 
     private void stop() {
-        LogUtil.d("DemandFetcher.stop");
+        LogUtil.dFS("DemandFetcher.stop");
         this.requestRunnable.cancelRequest();
         this.fetcherHandler.removeCallbacks(requestRunnable);
         // cancel existing requests
@@ -96,7 +102,7 @@ public class DemandFetcher {
     }
 
    public void start() {
-       LogUtil.d("DemandFetcher.start "+state);
+       LogUtil.dFS("DemandFetcher.start "+state);
         switch (state) {
             case STOPPED:
                 if (this.periodMillis <= 0) {
@@ -129,7 +135,7 @@ public class DemandFetcher {
     }
 
    public void destroy() {
-       LogUtil.d("DemandFetcher.destroy "+state);
+       LogUtil.dFS("DemandFetcher.destroy "+state);
         if (state != STATE.DESTROYED) {
             this.adObject = null;
             this.listener = null;
@@ -142,7 +148,7 @@ public class DemandFetcher {
 
     @MainThread
     private void notifyListener(final ResultCode resultCode) {
-        LogUtil.d("notifyListener:" + resultCode);
+        LogUtil.dFS("notifyListener:" + resultCode);
 
         if (listener != null) {
             listener.onComplete(resultCode);
@@ -166,18 +172,18 @@ public class DemandFetcher {
             this.demandHandler = new Handler(demandThread.getLooper());
             this.demandAdapter = new PrebidServerAdapter(type);
             auctionId = UUID.randomUUID().toString();
-           LogUtil.d("DemandFetcher:RequestRunnable() "+type+" ** "+auctionId+"  **  "+adUnit);
+           LogUtil.dFS("DemandFetcher:RequestRunnable() "+type+" ** "+auctionId+"  **  "+adUnit);
         }
 
        public void cancelRequest() {
-           LogUtil.d("DemandFetcher:RequestRunnable.cancelRequest");
+           LogUtil.dFS("DemandFetcher:RequestRunnable.cancelRequest");
             this.demandAdapter.stopRequest(auctionId);
         }
 
         @Override
         public void run() {
             // reset state
-            LogUtil.d("DemandFetcher:run auction id: "+auctionId);
+            LogUtil.dFS("DemandFetcher:run auction id: "+auctionId);
             auctionId = UUID.randomUUID().toString();
             if (adUnit != null) {
                 adUnit.setAuctionId(auctionId);
@@ -192,7 +198,7 @@ public class DemandFetcher {
                         @Override
                         @MainThread
                         public void onDemandReady(final HashMap<String, String> demand, String auctionId) {
-                            if (RequestRunnable.this.auctionId.equals(auctionId)) {
+                            if (!skipPrebidDemand && RequestRunnable.this.auctionId.equals(auctionId)) {
                                 List<CustomTargetingEntry> kwList = PrebidMobile.getInjectableDemandKeywords();
                                 for (CustomTargetingEntry kw : kwList) {
                                     demand.put(kw.getKey(), kw.getValue());
@@ -201,7 +207,7 @@ public class DemandFetcher {
 
                                 }
                                 Util.apply(demand, DemandFetcher.this.adObject);
-                                LogUtil.i("Successfully set the following keywords: " + demand.toString());
+                                LogUtil.iFS("Successfully set the following keywords: " + demand.toString());
                                 notifyListener(ResultCode.SUCCESS);
                             }
                         }
@@ -211,7 +217,7 @@ public class DemandFetcher {
                         public void onDemandFailed(ResultCode resultCode, String auctionId) {
                             if (RequestRunnable.this.auctionId.equals(auctionId)) {
                                 Util.apply(null, DemandFetcher.this.adObject);
-                                LogUtil.i("Removed all used keywords from the ad object");
+                                LogUtil.iFS("Removed all used keywords from the ad object");
                                 notifyListener(resultCode);
                             }
                         }
