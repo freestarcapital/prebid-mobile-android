@@ -34,7 +34,7 @@ import static junit.framework.Assert.assertTrue;
 public class InterstItialAdUnitTest {
     @Test
     public void testInterstitialAdUnitCreation() throws Exception {
-        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345");
+        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345", null);
         assertEquals("12345", FieldUtils.readField(adUnit, "configId", true));
         assertEquals(AdType.INTERSTITIAL, FieldUtils.readField(adUnit, "adType", true));
     }
@@ -42,7 +42,7 @@ public class InterstItialAdUnitTest {
 
     @Test
     public void testAdvancedInterstitialAdUnitCreation() throws Exception {
-        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345", 50, 70);
+        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345", null, 50, 70);
         assertEquals(AdType.INTERSTITIAL, FieldUtils.readField(adUnit, "adType", true));
 
         assertNotNull(adUnit.getMinSizePerc());
@@ -51,7 +51,7 @@ public class InterstItialAdUnitTest {
 
     @Test
     public void testSetUserKeyword() throws Exception {
-        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345");
+        InterstitialAdUnit adUnit = new InterstitialAdUnit("12345", null);
         adUnit.addUserKeyword("key", "value");
         adUnit.addUserKeyword("key1", null);
         @SuppressWarnings("unchecked")
@@ -73,7 +73,7 @@ public class InterstItialAdUnitTest {
 
     @Test
     public void testSetUserKeywords() throws Exception {
-        InterstitialAdUnit adUnit = new InterstitialAdUnit("123456");
+        InterstitialAdUnit adUnit = new InterstitialAdUnit("123456", null);
         adUnit.addUserKeyword("key1", "value1");
         String[] values = {"value1", "value2"};
         adUnit.addUserKeywords("key2", values);
