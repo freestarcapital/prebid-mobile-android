@@ -43,14 +43,12 @@ public abstract class AdUnit {
     private int periodMillis;
     private final ArrayList<AdNetwork> networks = new ArrayList<>();
     private String auctionId;
-    private String pChain;
 
-    AdUnit(@NonNull String configId, @NonNull AdType adType, String pChain) {
+    AdUnit(@NonNull String configId, @NonNull AdType adType) {
         this.configId = configId;
         this.adType = adType;
         this.periodMillis = 0; // by default no auto refresh
         this.keywords = new ArrayList<>();
-        this.pChain = pChain;
     }
 
     public void setAutoRefreshPeriodMillis(@IntRange(from = MIN_AUTO_REFRESH_PERIOD_MILLIS) int periodMillis) {
@@ -127,7 +125,7 @@ public abstract class AdUnit {
         }
         if (Util.supportedAdObject(adObj)) {
             fetcher = new DemandFetcher(this, type, adObj);
-            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks, pChain, minSizePerc);
+            RequestParams requestParams = new RequestParams(configId, adType, sizes, keywords, networks, minSizePerc);
             fetcher.setPeriodMillis(periodMillis);
             fetcher.setRequestParams(requestParams);
             fetcher.setListener(listener);
@@ -203,10 +201,6 @@ public abstract class AdUnit {
 
     public String getConfigId() {
         return configId;
-    }
-
-    public String getPchain() {
-        return pChain;
     }
 
     public void setAuctionId(String auctionId) {

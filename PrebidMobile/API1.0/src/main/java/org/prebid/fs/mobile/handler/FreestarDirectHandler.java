@@ -41,10 +41,6 @@ public class FreestarDirectHandler extends PrebidAdapterHandler {
             postData.put("id", id);
             JSONObject source = new JSONObject();
             source.put("tid", id);
-            String pChain = requestParams.getPchain();
-            if (pChain != null) {
-                source.put("pchain", pChain);
-            }
             postData.put("source", source);
             // add ad units
             JSONArray imp = getImp(requestParams);
